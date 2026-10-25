@@ -21,16 +21,25 @@ namespace osu.Game.Rulesets.Osu.Tests
             var cases = new List<object>();
             addCase("diffcalc-test", "NM", Array.Empty<Mod>(), false, 0, 0, 0, cases);
             addCase("diffcalc-test", "NM", Array.Empty<Mod>(), false, 1, 10, 20, cases);
+            addCase("diffcalc-test", "NM", Array.Empty<Mod>(), false, 0, 0, 5, cases, tailsDropped: 5);
+            addCase("diffcalc-test", "NM", Array.Empty<Mod>(), false, 0, 0, 1, cases, tickMisses: 1);
             addCase("diffcalc-test", "DT", new Mod[] { new OsuModDoubleTime() }, false, 0, 0, 0, cases);
             addCase("diffcalc-test", "HD", new Mod[] { new OsuModHidden() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "FL", new Mod[] { new OsuModFlashlight() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "HDFL", new Mod[] { new OsuModHidden(), new OsuModFlashlight() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "HR", new Mod[] { new OsuModHardRock() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "RX", new Mod[] { new OsuModRelax() }, false, 1, 10, 20, cases);
+            addCase("diffcalc-test", "AP", new Mod[] { new OsuModAutopilot() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "NF", new Mod[] { new OsuModNoFail() }, false, 1, 10, 20, cases);
             addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 0, 0, 0, cases);
+            addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 1, 10, 20, cases);
             addCase("801165", "NM", Array.Empty<Mod>(), false, 0, 0, 0, cases);
 
             File.WriteAllText(Path.Combine(TestContext.CurrentContext.WorkDirectory, "july-reference.json"),
                 JsonConvert.SerializeObject(cases, Formatting.Indented));
         }
 
-        private void addCase(string name, string acronym, Mod[] mods, bool legacy, int misses, int oks, int comboDrop, List<object> cases)
+        private void addCase(string name, string acronym, Mod[] mods, bool legacy, int misses, int oks, int comboDrop, List<object> cases, int tailsDropped = 0, int tickMisses = 0)
         {
             var beatmap = GetBeatmap(name);
             var difficulty = (OsuDifficultyAttributes)CreateDifficultyCalculator(beatmap).Calculate(mods);
@@ -48,7 +57,8 @@ namespace osu.Game.Rulesets.Osu.Tests
                     [HitResult.Great] = greats,
                     [HitResult.Ok] = oks,
                     [HitResult.Miss] = misses,
-                    [HitResult.SliderTailHit] = difficulty.SliderCount
+                    [HitResult.SliderTailHit] = difficulty.SliderCount - tailsDropped,
+                    [HitResult.LargeTickMiss] = tickMisses
                 }
             };
 
@@ -59,7 +69,7 @@ namespace osu.Game.Rulesets.Osu.Tests
                 beatmap = name + ".osu",
                 mods = acronym,
                 legacy,
-                score = new { greats, oks, misses, maxCombo = score.MaxCombo, accuracy = score.Accuracy },
+                score = new { greats, oks, misses, maxCombo = score.MaxCombo, accuracy = score.Accuracy, sliderTailHits = difficulty.SliderCount - tailsDropped, largeTickMisses = tickMisses },
                 difficulty = new
                 {
                     difficulty.StarRating,

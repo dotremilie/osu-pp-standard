@@ -1,6 +1,6 @@
 import { Hidden, IApplicableToBeatmap } from 'osu-classes';
 import { StandardBeatmap } from '../Beatmaps';
-import { StandardHitObject } from '../Objects';
+import { Slider, StandardHitObject } from '../Objects';
 
 export class StandardHidden extends Hidden implements IApplicableToBeatmap {
   static readonly FADE_IN_DURATION_MULTIPLIER = 0.4;
@@ -13,7 +13,9 @@ export class StandardHidden extends Hidden implements IApplicableToBeatmap {
   }
 
   private _applyFadeAdjustments(hitObject: StandardHitObject): void {
-    hitObject.timeFadeIn = hitObject.timePreempt * StandardHidden.FADE_IN_DURATION_MULTIPLIER;
+    if (!(hitObject instanceof Slider)) {
+      hitObject.timeFadeIn = hitObject.timePreempt * StandardHidden.FADE_IN_DURATION_MULTIPLIER;
+    }
 
     for (const nestedObject of hitObject.nestedHitObjects) {
       this._applyFadeAdjustments(nestedObject as StandardHitObject);

@@ -41,12 +41,12 @@ export class FlashlightEvaluator {
       const currentObj = current.previous(i) as StandardDifficultyHitObject;
       const currentHitObject = currentObj.baseObject as StandardHitObject;
 
+      cumulativeStrainTime += lastObj.adjustedDeltaTime;
+
       if (!(currentObj.baseObject instanceof Spinner)) {
         const jumpDistance = osuHitObject.stackedStartPosition
           .fsubtract(currentHitObject.stackedEndPosition)
           .flength();
-
-        cumulativeStrainTime += lastObj.strainTime;
 
         /**
          * We want to nerf objects that can be easily 
@@ -96,8 +96,8 @@ export class FlashlightEvaluator {
     /**
      * Nerf patterns with repeated angles.
      */
-    result *= this.MIN_ANGLE_MULTIPLIER
-      + (1 - this.MIN_ANGLE_MULTIPLIER) / (angleRepeatCount + 1);
+    result *= this.MIN_ANGLE_MULTIPLIER +
+      (1 - this.MIN_ANGLE_MULTIPLIER) / (angleRepeatCount + 1);
 
     let sliderBonus = 0;
 

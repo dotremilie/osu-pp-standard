@@ -2,12 +2,12 @@
 
 TypeScript fork of [kionell/osu-standard-stable](https://github.com/kionell/osu-standard-stable) for osu!standard difficulty and performance calculation.
 
-**Port status:** Slider preprocessing, hit-window rounding, and an internal Speed skill have been ported to July 2026. The active Aim, Speed, and PP formulas still come from upstream April 2025, so output does not yet match the official July 2026 rework. See [the reference comparison](docs/REFERENCE_20260706.md) before using its output as current PP. The original upstream API documentation follows below.
+**Port status:** The active osu!standard Aim, Speed, Reading, Flashlight, rating, and PP calculations follow the pinned July 2026 rework. The reference gate matches all 23 included difficulty and score fixtures, including Classic scores and slider tail and tick drops. Legacy total score miss estimation and broader score settings still need work. See [the reference comparison](docs/REFERENCE_20260706.md) for the pinned version and validation scope.
 
 - Supports TypeScript.
 - Based on the osu!lazer source code.
 - Can apply & reset osu!standard mods.
-- Difficulty and performance calculation (currently using the pre-rework formulas).
+- July 2026 osu!standard difficulty and performance calculation for the verified score settings.
 - Works in browsers.
 
 ## Installation
@@ -21,7 +21,7 @@ npm test
 npm run compare:reference -- --report
 ```
 
-`npm test` checks the ported components. `npm run compare:reference` is the full official parity gate and currently fails; publication also runs this gate.
+`npm test` checks the ported skills. `npm run compare:reference` checks the pinned official difficulty and PP fixtures; publication also runs this gate.
 
 ## Requirements
 
@@ -93,26 +93,7 @@ const difficultyCalculator = ruleset.createDifficultyCalculator(parsed);
 const difficultyAttributes = difficultyCalculator.calculateWithMods(mods);
 ```
 
-### Example of stringified difficulty attributes
-
-```json
-{
-  "maxCombo": 2496,
-  "mods": "HDDT",
-  "starRating": 9.604287641287677,
-  "aimDifficulty": 4.431096363500523,
-  "speedDifficulty": 4.7498818169147095,
-  "speedNoteCount": 411.55482693254766,
-  "flashlightDifficulty": 6.310966523926074,
-  "sliderFactor": 0.996588779020487,
-  "approachRate": 10.53333346048991,
-  "overallDifficulty": 10.111111111111112,
-  "drainRate": 6,
-  "hitCircleCount": 1162,
-  "sliderCount": 619,
-  "spinnerCount": 1
-},
-```
+The returned attributes include `starRating`, `aimDifficulty`, `speedDifficulty`, `readingDifficulty`, `speedNoteCount`, and the score inputs used by the July 2026 PP calculation. Pinned examples are in `tests/Files/July2026/performance-reference.json`.
 
 ## Advanced difficulty calculation
 
@@ -272,9 +253,9 @@ for (const attributes of difficultyCalculator.calculateAll()) {
 ## Performance calculation
 
 ```js
-import { ScoreInfo } from 'osu-classes';
+import { HitResult, ScoreInfo } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardRuleset } from 'osu-pp-standard';
+import { StandardHitResult, StandardRuleset } from 'osu-pp-standard';
 
 const decoder = new BeatmapDecoder();
 
@@ -296,20 +277,14 @@ const difficultyCalculator = ruleset.createDifficultyCalculator(standardBeatmap)
 // Calculate difficulty attributes.
 const difficultyAttributes = difficultyCalculator.calculate();
 
-// MariannE (Yooh) [Collab]
-// mrekk + HDDT 1371.45 pp.
 const score = new ScoreInfo({
-  maxCombo: 2492,
-  rulesetId: 0,
-  count300: 1756, // score.statistics.great
-  count100: 26, // score.statistics.good
-  count50: 0, // score.statistics.meh
-  countMiss: 0, // score.statistics.miss
+  maxCombo: difficultyAttributes.maxCombo,
   mods,
+  accuracy: 1,
 });
 
-score.accuracy = (score.count300 + (score.count100 / 3) + (score.count50 / 6)) 
-  / (score.count300 + score.count100 + score.count50 + score.countMiss);
+score.statistics.set(HitResult.Great, standardBeatmap.hitObjects.length);
+score.statistics.set(StandardHitResult.SliderTailHit, difficultyAttributes.sliderCount);
 
 // Create performance calculator for osu!std ruleset.
 const performanceCalculator = ruleset.createPerformanceCalculator(difficultyAttributes, score);
@@ -321,19 +296,7 @@ const performanceAttributes = performanceCalculator.calculateAttributes();
 const totalPerformance = performanceCalculator.calculate();
 ```
 
-### Example of stringified performance attributes
-
-```json
-{
-  "mods": "HDDT",
-  "totalPerformance": 1371.4670260135895,
-  "aimPerformance": 513.6728800186834,
-  "speedPerformance": 643.653687558857,
-  "accuracyPerformance": 155.40643792332443,
-  "flashlightPerformance": 0,
-  "effectiveMissCount": 0
-}
-```
+For real scores, pass their actual `Great`, `Ok`, `Meh`, and `Miss` counts, combo, accuracy, and available slider tail and tick results. If slider tail data is absent, the calculator assumes every tail was hit. Use `ruleset.createModCombination('CL')` for Classic slider accuracy; legacy total score miss estimation is not yet implemented.
 
 ## Documentation
 

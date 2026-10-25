@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { DifficultyHitObject, HitResult, Vector2 } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardModCombination } from '../src/Mods';
+import { StandardClassic, StandardModCombination } from '../src/Mods';
 import { Circle, Slider, Spinner } from '../src/Objects';
 import { StandardRuleset } from '../src/StandardRuleset';
 import { StandardHitWindows } from '../src/Scoring';
@@ -13,6 +13,7 @@ import { HarmonicSkill } from '../src/Difficulty/Skills/HarmonicSkill';
 import { VariableLengthStrainSkill } from '../src/Difficulty/Skills/VariableLengthStrainSkill';
 import { JulySpeed } from '../src/Difficulty/Skills/JulySpeed';
 import { JulyReading } from '../src/Difficulty/Skills/JulyReading';
+import { JulyAim } from '../src/Difficulty/Skills/JulyAim';
 
 function objectAt(startTime: number, value: number): DifficultyHitObject {
   return {
@@ -396,4 +397,70 @@ test('July Reading matches the pinned official difficulty component', () => {
 
     expect(Math.sqrt(reading.difficultyValue) * 0.0675).toBeCloseTo(fixture.difficulty, 5);
   }
+});
+
+test('July Aim matches the pinned official difficulty component', () => {
+  const cases = [
+    {
+      beatmap: 'diffcalc-test.osu',
+      mods: 'NM',
+      rate: 1,
+      difficulty: 3.809399008867019,
+      sliderFactor: 0.9988227250155558,
+    },
+    {
+      beatmap: 'diffcalc-test.osu',
+      mods: 'DT',
+      rate: 1.5,
+      difficulty: 5.5930033565507795,
+      sliderFactor: 0.9964851154347204,
+    },
+    {
+      beatmap: 'diffcalc-test.osu',
+      mods: 'HD',
+      rate: 1,
+      difficulty: 3.809399008867019,
+      sliderFactor: 0.9988227250155558,
+    },
+    {
+      beatmap: '801165.osu',
+      mods: 'NM',
+      rate: 1,
+      difficulty: 3.5141717095461806,
+      sliderFactor: 0.9795548616785261,
+    },
+  ];
+
+  for (const fixture of cases) {
+    const source = fs.readFileSync(path.resolve(__dirname, `Files/July2026/${fixture.beatmap}`), 'utf8');
+    const parsed = new BeatmapDecoder().decodeFromString(source, false);
+    const mods = new StandardModCombination(fixture.mods);
+    const beatmap = new StandardRuleset().applyToBeatmapWithMods(parsed, mods);
+    const objects: StandardDifficultyHitObject[] = [];
+
+    for (let i = 1; i < beatmap.hitObjects.length; ++i) {
+      objects.push(new StandardDifficultyHitObject(beatmap.hitObjects[i], beatmap.hitObjects[i - 1], fixture.rate, objects, i - 1));
+    }
+
+    const aim = new JulyAim(mods, true);
+    const aimWithoutSliders = new JulyAim(mods, false);
+
+    objects.forEach((object) => {
+      aim.process(object);
+      aimWithoutSliders.process(object);
+    });
+
+    expect(Math.pow(aim.difficultyValue, 0.63) * 0.02275).toBeCloseTo(fixture.difficulty, 8);
+    expect(Math.pow(aimWithoutSliders.difficultyValue / aim.difficultyValue, 0.63))
+      .toBeCloseTo(fixture.sliderFactor, 5);
+  }
+});
+
+test('Classic slider accuracy survives mod combination cloning', () => {
+  const classic = new StandardModCombination('CL');
+
+  expect(classic.acronyms).toEqual(['CL']);
+  expect(classic.any(StandardClassic)).toBe(true);
+  expect(classic.clone().any(StandardClassic)).toBe(true);
+  expect(classic.equals(new StandardModCombination('NM'))).toBe(false);
 });

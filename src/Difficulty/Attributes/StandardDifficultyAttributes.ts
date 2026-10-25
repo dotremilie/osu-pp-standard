@@ -6,10 +6,21 @@ export class StandardDifficultyAttributes extends DifficultyAttributes {
    */
   aimDifficulty = 0;
 
+  /** July 2026 Aim skill metadata used by performance calculation. */
+  aimDifficultSliderCount = 0;
+  aimDifficultStrainCount = 0;
+  aimTopWeightedSliderFactor = 0;
+
   /**
    * The difficulty corresponding to the speed skill.
    */
   speedDifficulty = 0;
+  speedDifficultStrainCount = 0;
+  speedTopWeightedSliderFactor = 0;
+
+  /** The July 2026 pattern reading difficulty. */
+  readingDifficulty = 0;
+  readingDifficultNoteCount = 0;
 
   /**
    * The number of clickable objects weighted by difficulty.
@@ -42,6 +53,11 @@ export class StandardDifficultyAttributes extends DifficultyAttributes {
    * but have a perceived effect as a result of adjusting audio timing.
    */
   overallDifficulty = 0;
+
+  /** Rate-adjusted hit windows used by July 2026 performance estimation. */
+  greatHitWindow = 0;
+  okHitWindow = 0;
+  mehHitWindow = 0;
 
   /**
    * The beatmap's drain rate. This doesn't scale with rate-adjusting mods.

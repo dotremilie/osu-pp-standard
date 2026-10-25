@@ -13,20 +13,23 @@ import {
   StandardFlashlight,
   StandardHalfTime,
   StandardHardRock,
+  StandardHidden,
   StandardModCombination,
-  StandardRelax,
   StandardTouchDevice,
 } from '../Mods';
 
-import { Aim, Speed, Flashlight } from './Skills';
+import { Flashlight } from './Skills';
+import { JulyAim } from './Skills/JulyAim';
+import { JulySpeed } from './Skills/JulySpeed';
+import { JulyReading } from './Skills/JulyReading';
 import { StandardDifficultyAttributes } from './Attributes';
 import { StandardDifficultyHitObject } from './Preprocessing';
 import { Circle, Slider, Spinner } from '../Objects';
 import { StandardHitWindows } from '../Scoring';
-import { StandardPerformanceCalculator } from './StandardPerformanceCalculator';
+import { cognitionValue, norm } from './JulyPerformanceMath';
 
 export class StandardDifficultyCalculator extends DifficultyCalculator<StandardDifficultyAttributes> {
-  private _DIFFICULTY_MULTIPLIER = 0.0675;
+  private readonly _DIFFICULTY_MULTIPLIER = 0.0675;
 
   protected _createDifficultyAttributes(
     beatmap: IBeatmap,
@@ -38,46 +41,31 @@ export class StandardDifficultyCalculator extends DifficultyCalculator<StandardD
       return new StandardDifficultyAttributes(mods, 0);
     }
 
-    let aimRating = Math.sqrt(skills[0].difficultyValue) * this._DIFFICULTY_MULTIPLIER;
-    let speedRating = Math.sqrt(skills[2].difficultyValue) * this._DIFFICULTY_MULTIPLIER;
-    let flashlightRating = Math.sqrt(skills[3].difficultyValue) * this._DIFFICULTY_MULTIPLIER;
-
-    const aimRatingNoSliders = Math.sqrt(skills[1].difficultyValue) * this._DIFFICULTY_MULTIPLIER;
-    const speedNoteCount = (skills[2] as Speed).relevantNoteCount();
+    const aim = skills[0] as JulyAim;
+    const aimWithoutSliders = skills[1] as JulyAim;
+    const speed = skills[2] as JulySpeed;
+    const reading = skills[3] as JulyReading;
+    const aimValue = aim.difficultyValue;
+    const aimWithoutSlidersValue = aimWithoutSliders.difficultyValue;
+    const speedValue = speed.difficultyValue;
+    const readingValue = reading.difficultyValue;
+    const aimRating = Math.pow(aimValue, 0.63) * 0.02275;
+    const aimRatingNoSliders = Math.pow(aimWithoutSlidersValue, 0.63) * 0.02275;
+    const speedRating = Math.sqrt(speedValue) * this._DIFFICULTY_MULTIPLIER;
+    const readingRating = Math.sqrt(readingValue) * this._DIFFICULTY_MULTIPLIER;
+    const flashlightRating = mods.any(StandardFlashlight)
+      ? Math.sqrt(skills[4].difficultyValue) * this._DIFFICULTY_MULTIPLIER : 0;
+    const speedNoteCount = speed.relevantObjectCount();
 
     const sliderFactor = aimRating > 0 ? aimRatingNoSliders / aimRating : 1;
 
-    if (mods.any(StandardTouchDevice)) {
-      aimRating = Math.pow(aimRating, 0.8);
-      flashlightRating = Math.pow(flashlightRating, 0.8);
-    }
-
-    if (mods.any(StandardRelax)) {
-      aimRating *= 0.9;
-      speedRating = 0;
-      flashlightRating *= 0.7;
-    }
-
-    const baseAimPerformance = Math.pow(5 * Math.max(1, aimRating / 0.0675) - 4, 3) / 100000;
-    const baseSpeedPerformance = Math.pow(5 * Math.max(1, speedRating / 0.0675) - 4, 3) / 100000;
-
-    let baseFlashlightPerformance = 0;
-
-    if (mods.any(StandardFlashlight)) {
-      baseFlashlightPerformance = Math.pow(flashlightRating, 2) * 25;
-    }
-
-    const basePerformance = Math.pow(
-      Math.pow(baseAimPerformance, 1.1) +
-      Math.pow(baseSpeedPerformance, 1.1) +
-      Math.pow(baseFlashlightPerformance, 1.1), 1 / 1.1,
-    );
-
-    const baseMultiplier = StandardPerformanceCalculator.PERFORMANCE_BASE_MULTIPLIER;
-
-    const starRating = basePerformance > 0.00001
-      ? Math.cbrt(baseMultiplier) * 0.027 * (Math.cbrt(100000 / Math.pow(2, 1 / 1.1) * basePerformance) + 4)
-      : 0;
+    const baseAimPerformance = 4 * Math.pow(aimRating, 3);
+    const baseSpeedPerformance = 4 * Math.pow(speedRating, 3);
+    const baseReadingPerformance = 4 * Math.pow(readingRating, 3);
+    const baseFlashlightPerformance = 25 * Math.pow(flashlightRating, 2);
+    const cognitionPerformance = cognitionValue(baseReadingPerformance, baseFlashlightPerformance);
+    const basePerformance = norm(1.1, baseAimPerformance, baseSpeedPerformance, cognitionPerformance);
+    const starRating = Math.cbrt(basePerformance * 1.12);
 
     const approachRate = beatmap.difficulty.approachRate;
 
@@ -94,20 +82,41 @@ export class StandardDifficultyCalculator extends DifficultyCalculator<StandardD
     hitWindows.setDifficulty(beatmap.difficulty.overallDifficulty);
 
     const hitWindowGreat = hitWindows.windowFor(HitResult.Great) / clockRate;
+    const hitWindowOk = hitWindows.windowFor(HitResult.Ok) / clockRate;
+    const hitWindowMeh = hitWindows.windowFor(HitResult.Meh) / clockRate;
 
     const attributes = new StandardDifficultyAttributes(mods, starRating);
 
     attributes.aimDifficulty = aimRating;
+    attributes.aimDifficultSliderCount = aim.getDifficultSliders();
+    attributes.aimDifficultStrainCount = aim.countTopWeightedStrains(aimValue);
     attributes.speedDifficulty = speedRating;
+    attributes.speedDifficultStrainCount = speed.countTopWeightedObjectDifficulties(speedValue);
+    attributes.readingDifficulty = readingRating;
+    attributes.readingDifficultNoteCount = reading.countTopWeightedObjectDifficulties(readingValue);
     attributes.speedNoteCount = speedNoteCount;
     attributes.flashlightDifficulty = flashlightRating;
     attributes.sliderFactor = sliderFactor;
+
+    const aimWithoutSlidersTopWeightedSliders = aimWithoutSliders.countTopWeightedSliders(aimWithoutSlidersValue);
+    const aimWithoutSlidersStrains = aimWithoutSliders.countTopWeightedStrains(aimWithoutSlidersValue);
+    const speedTopWeightedSliders = speed.countTopWeightedSliders(speedValue);
+
+    attributes.aimTopWeightedSliderFactor = aimWithoutSlidersTopWeightedSliders /
+      Math.max(1, aimWithoutSlidersStrains - aimWithoutSlidersTopWeightedSliders);
+
+    attributes.speedTopWeightedSliderFactor = speedTopWeightedSliders /
+      Math.max(1, attributes.speedDifficultStrainCount - speedTopWeightedSliders);
+
     attributes.hitCircleCount = circles.length;
     attributes.sliderCount = sliders.length;
     attributes.spinnerCount = spinners.length;
     attributes.maxCombo = circles.length + spinners.length + nested;
     attributes.drainRate = beatmap.difficulty.drainRate;
-    attributes.overallDifficulty = (80 - hitWindowGreat) / 6;
+    attributes.overallDifficulty = (79.5 - hitWindowGreat) / 6;
+    attributes.greatHitWindow = hitWindowGreat;
+    attributes.okHitWindow = hitWindowOk;
+    attributes.mehHitWindow = hitWindowMeh;
     attributes.approachRate = preempt > 1200
       ? (1800 - preempt) / 120
       : (1200 - preempt) / 150 + 5;
@@ -140,12 +149,13 @@ export class StandardDifficultyCalculator extends DifficultyCalculator<StandardD
     return difficultyObjects;
   }
 
-  protected _createSkills(_: IBeatmap, mods: StandardModCombination): Skill[] {
+  protected _createSkills(beatmap: IBeatmap, mods: StandardModCombination): Skill[] {
     return [
-      new Aim(mods, true),
-      new Aim(mods, false),
-      new Speed(mods),
-      new Flashlight(mods),
+      new JulyAim(mods, true),
+      new JulyAim(mods, false),
+      new JulySpeed(mods),
+      new JulyReading(mods),
+      new Flashlight(mods, beatmap.hitObjects.length),
     ];
   }
 
@@ -155,6 +165,8 @@ export class StandardDifficultyCalculator extends DifficultyCalculator<StandardD
       new StandardHalfTime(),
       new StandardEasy(),
       new StandardHardRock(),
+      new StandardTouchDevice(),
+      new StandardHidden(),
       new StandardFlashlight(),
     ];
   }

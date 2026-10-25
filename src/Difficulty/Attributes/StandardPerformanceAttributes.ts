@@ -22,6 +22,12 @@ export class StandardPerformanceAttributes extends PerformanceAttributes {
    */
   accuracyPerformance = 0;
 
+  /** Pattern reading performance. */
+  readingPerformance = 0;
+
+  /** Estimated timing deviation on speed notes, in milliseconds. */
+  speedDeviation: number | null = null;
+
   /**
    * The flashlight performance of a score.
    */

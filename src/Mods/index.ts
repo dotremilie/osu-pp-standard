@@ -1,6 +1,7 @@
 export { StandardAutopilot } from './StandardAutopilot';
 export { StandardAutoplay } from './StandardAutoplay';
 export { StandardCinema } from './StandardCinema';
+export { StandardClassic } from './StandardClassic';
 export { StandardDoubleTime } from './StandardDoubleTime';
 export { StandardEasy } from './StandardEasy';
 export { StandardFlashlight } from './StandardFlashlight';

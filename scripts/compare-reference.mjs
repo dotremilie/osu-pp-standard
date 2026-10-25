@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HitResult, ScoreInfo } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardRuleset } from '../lib/index.mjs';
+import { StandardHitResult, StandardRuleset } from '../lib/index.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fixtureDirectory = path.join(root, 'tests', 'Files', 'July2026');
@@ -42,17 +42,18 @@ console.log('\nPP cases: fork / reference');
 for (const fixture of performanceReference) {
   const name = `${fixture.beatmap} +${fixture.mods} ${fixture.legacy ? 'stable' : 'lazer'} ${fixture.score.misses}m`;
 
-  if (fixture.mods === 'CL') {
-    console.log(`UNSUPPORTED ${name}: Classic mod is absent from this fork`);
-    failures += 1;
-    continue;
-  }
-
   const beatmapPath = path.join(fixtureDirectory, fixture.beatmap);
   const parsed = decoder.decodeFromString(fs.readFileSync(beatmapPath, 'utf8'), false);
   const mods = ruleset.createModCombination(fixture.mods);
   const beatmap = ruleset.applyToBeatmapWithMods(parsed, mods);
   const difficulty = ruleset.createDifficultyCalculator(beatmap).calculate();
+  const scoreDetails = [];
+  const droppedTails = difficulty.sliderCount - (fixture.score.sliderTailHits ?? difficulty.sliderCount);
+
+  if (droppedTails > 0) scoreDetails.push(`${droppedTails} tails dropped`);
+  if (fixture.score.largeTickMisses > 0) scoreDetails.push(`${fixture.score.largeTickMisses} tick missed`);
+
+  const caseName = scoreDetails.length > 0 ? `${name}, ${scoreDetails.join(', ')}` : name;
   const score = new ScoreInfo({
     maxCombo: fixture.score.maxCombo,
     mods,
@@ -61,6 +62,9 @@ for (const fixture of performanceReference) {
   score.statistics.set(HitResult.Great, fixture.score.greats);
   score.statistics.set(HitResult.Ok, fixture.score.oks);
   score.statistics.set(HitResult.Miss, fixture.score.misses);
+  score.statistics.set(HitResult.LargeTickMiss, fixture.score.largeTickMisses ?? 0);
+  score.statistics.set(StandardHitResult.SliderTailHit,
+    fixture.score.sliderTailHits ?? difficulty.sliderCount);
 
   const actual = ruleset.createPerformanceCalculator(difficulty, score).calculateAttributes();
   const compared = [
@@ -80,7 +84,7 @@ for (const fixture of performanceReference) {
 
   if (differences.length > 0) failures += 1;
 
-  console.log(`${differences.length === 0 ? 'PASS' : 'DIFF'} ${name}: ${actual.totalPerformance.toFixed(3)} / ${fixture.performance.Total.toFixed(3)} pp; differing: ${differences.join(', ') || 'none'}`);
+  console.log(`${differences.length === 0 ? 'PASS' : 'DIFF'} ${caseName}: ${actual.totalPerformance.toFixed(3)} / ${fixture.performance.Total.toFixed(3)} pp; differing: ${differences.join(', ') || 'none'}`);
 }
 
 console.log(`${performanceReference.length + reference.cases.length - failures}/${performanceReference.length + reference.cases.length} total cases match.`);

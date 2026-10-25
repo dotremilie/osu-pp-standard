@@ -343,9 +343,7 @@ export class StandardDifficultyHitObject extends DifficultyHitObject {
         currCursorPosition = currCursorPosition.fadd(currMovement.fscale(movementScale));
         currMovementLength *= (currMovementLength - requiredMovement) / currMovementLength;
 
-        slider.lazyTravelDistance = Math.fround(
-          slider.lazyTravelDistance + Math.fround(currMovementLength),
-        );
+        slider.lazyTravelDistance += currMovementLength;
       }
 
       if (i === nestedObjects.length - 1) {

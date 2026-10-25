@@ -1,77 +1,28 @@
-import { DifficultyHitObject, MathUtils } from 'osu-classes';
+// Adapted from ppy/osu at 2026.711.0-lazer. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
+import { MathUtils } from 'osu-classes';
 import { Spinner } from '../../Objects';
-import { StandardDifficultyHitObject } from '../Preprocessing/StandardDifficultyHitObject';
+import { StandardDifficultyHitObject } from '../Preprocessing';
 
-/**
- * Represents the skill required to press keys with regards 
- * to keeping up with the speed at which objects need to be hit.
- */
+/** July 2026 per-object tapping difficulty before rhythm and strain accumulation. */
 export class SpeedEvaluator {
-  private static readonly SINGLE_SPACING_THRESHOLD = 125;
-  private static readonly MIN_SPEED_BONUS = 75; // ~200BPM
-  private static readonly SPEED_BALANCING_FACTOR = 40;
-
-  /**
-   * Evaluates the difficulty of tapping the current object, based on:
-   *  - time between pressing the previous and current object;
-   *  - distance between those objects
-   *  - and how easily they can be cheesed.
-   * 
-   * @param current Current difficulty hit object.
-   * @returns Speed value at this {@link StandardDifficultyHitObject}.
-   */
-  static evaluateDifficultyOf(current: DifficultyHitObject): number {
+  static evaluateDifficultyOf(current: StandardDifficultyHitObject): number {
     if (current.baseObject instanceof Spinner) return 0;
 
-    /**
-     * Derive strainTime for calculation
-     */
-    const osuCurrObj = current as StandardDifficultyHitObject;
-    const osuPrevObj = current.index > 0 ? current.previous(0) as StandardDifficultyHitObject : null;
-    const osuNextObj = current.next(0) as StandardDifficultyHitObject;
+    let strainTime = current.adjustedDeltaTime;
+    const next = current.next(0) as StandardDifficultyHitObject | null;
+    const doubleTapFeasibility = 1 - current.calculateDoubleTapFeasibility(next);
 
-    let strainTime = osuCurrObj.strainTime;
-    let doubletapness = 1;
+    strainTime /= MathUtils.clamp((strainTime / current.hitWindowGreat) / 0.93, 0.92, 1);
 
-    /**
-     * Nerf doubletappable doubles.
-     */
-    if (osuNextObj !== null) {
-      const currDeltaTime = Math.max(1, osuCurrObj.deltaTime);
-      const nextDeltaTime = Math.max(1, osuNextObj.deltaTime);
-      const deltaDifference = Math.abs(nextDeltaTime - currDeltaTime);
-      const speedRatio = currDeltaTime / Math.max(currDeltaTime, deltaDifference);
-      const windowRatio = Math.pow(Math.min(1, currDeltaTime / osuCurrObj.hitWindowGreat), 2);
+    let speedBonus = 0;
 
-      doubletapness = Math.pow(speedRatio, 1 - windowRatio);
+    if (60000 / (strainTime * 4) > 200) {
+      speedBonus = 0.75 * Math.pow((75 - strainTime) / 40, 2);
     }
 
-    /**
-     * Cap deltatime to the OD 300 hitwindow.
-     * 0.93 is derived from making sure 260bpm OD8 streams aren't 
-     * nerfed harshly, whilst 0.92 limits the effect of the cap.
-     */
-    strainTime /= MathUtils.clamp((strainTime / osuCurrObj.hitWindowGreat) / 0.93, 0.92, 1);
+    const speedDifficulty = (1 + speedBonus) * 1000 / strainTime;
+    const highBpmBonus = 1 / (1 - Math.pow(0.3, current.adjustedDeltaTime / 1000));
 
-    /**
-     * Derive speedBonus for calculation.
-     */
-    let speedBonus = 1;
-
-    if (strainTime < this.MIN_SPEED_BONUS) {
-      speedBonus = 1 + 0.75 * Math.pow(
-        (this.MIN_SPEED_BONUS - strainTime) / this.SPEED_BALANCING_FACTOR, 2,
-      );
-    }
-
-    const travelDistance = osuPrevObj?.travelDistance ?? 0;
-    const distance = Math.min(
-      this.SINGLE_SPACING_THRESHOLD,
-      travelDistance + osuCurrObj.minimumJumpDistance,
-    );
-
-    const pow = Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.5);
-
-    return (speedBonus + speedBonus * pow) * doubletapness / strainTime;
+    return speedDifficulty * highBpmBonus * doubleTapFeasibility;
   }
 }

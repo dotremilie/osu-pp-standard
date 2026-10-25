@@ -2,7 +2,7 @@
 
 TypeScript fork of [kionell/osu-standard-stable](https://github.com/kionell/osu-standard-stable) for osu!standard difficulty and performance calculation.
 
-**Port status:** The active osu!standard Aim, Speed, Reading, Flashlight, rating, and PP calculations follow the pinned July 2026 rework. The reference gate matches all 23 included difficulty and score fixtures, including Classic scores and slider tail and tick drops. Legacy total score miss estimation and broader score settings still need work. See [the reference comparison](docs/REFERENCE_20260706.md) for the pinned version and validation scope.
+**Port status:** The active osu!standard Aim, Speed, Reading, Flashlight, rating, and PP calculations follow the pinned July 2026 rework. The reference gate matches all 29 included difficulty and score fixtures, including Classic ScoreV1 and ScoreV2 cases and slider tail and tick drops. More beatmaps and mod combinations still need validation. See [the reference comparison](docs/REFERENCE_20260706.md) for the pinned version and validation scope.
 
 - Supports TypeScript.
 - Based on the osu!lazer source code.

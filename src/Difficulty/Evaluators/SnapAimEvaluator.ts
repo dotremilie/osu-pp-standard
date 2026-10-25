@@ -1,10 +1,10 @@
 // Adapted from ppy/osu at 2026.711.0-lazer. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { Slider, Spinner } from '../../Objects';
 import { StandardDifficultyHitObject } from '../Preprocessing';
-import { reverseLerp, smootherstep, smoothstep } from './JulyAimMath';
+import { reverseLerp, smootherstep, smoothstep } from './AimMath';
 
 /** Snap movement contribution to July 2026 Aim. */
-export class JulySnapAimEvaluator {
+export class SnapAimEvaluator {
   static evaluateDifficultyOf(current: StandardDifficultyHitObject, withSliderTravelDistance: boolean): number {
     const previous = current.previous(0) as StandardDifficultyHitObject | null;
 

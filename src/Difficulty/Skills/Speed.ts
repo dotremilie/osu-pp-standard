@@ -1,60 +1,61 @@
+// Adapted from ppy/osu at 2026.711.0-lazer. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { DifficultyHitObject } from 'osu-classes';
-import { RhythmEvaluator, SpeedEvaluator } from '../Evaluators';
+import { StandardAutopilot, StandardRelax } from '../../Mods';
+import { Slider } from '../../Objects';
+import { RhythmEvaluator } from '../Evaluators/RhythmEvaluator';
+import { SpeedEvaluator } from '../Evaluators/SpeedEvaluator';
 import { StandardDifficultyHitObject } from '../Preprocessing';
-import { StandardStrainSkill } from './StandardStrainSkill';
+import { HarmonicSkill } from './HarmonicSkill';
 
-/**
- * Represents the skill required to press keys with regards 
- * to keeping up with the speed at which objects need to be hit.
- */
-export class Speed extends StandardStrainSkill {
-  private static readonly SKILL_MULTIPLIER = 1375;
-  private static readonly STRAIN_DECAY_BASE = 0.3;
-
+/** osu!standard speed skill from the July 2026 rework. */
+export class Speed extends HarmonicSkill {
   private _currentStrain = 0;
-  private _currentRhythm = 0;
+  private readonly _sliderStrains: number[] = [];
 
-  protected _reducedSectionCount = 5;
-  protected _difficultyMultiplier = 1.04;
-
-  private readonly _objectStrains: number[] = [];
-
-  private _strainDecay(ms: number): number {
-    return Math.pow(Speed.STRAIN_DECAY_BASE, ms / 1000);
+  protected get _harmonicScale(): number {
+    return 20;
   }
 
-  protected _calculateInitialStrain(time: number, current: DifficultyHitObject): number {
-    const strainDecay = this._strainDecay(time - (current.previous(0)?.startTime ?? 0));
+  protected _objectDifficultyOf(current: DifficultyHitObject): number {
+    if (this._mods.any(StandardRelax)) return 0;
 
-    return (this._currentStrain * this._currentRhythm) * strainDecay;
-  }
-
-  protected _strainValueAt(current: DifficultyHitObject): number {
     const standardCurrent = current as StandardDifficultyHitObject;
+    const decay = Math.pow(0.3, standardCurrent.adjustedDeltaTime / 1000);
+    let difficulty = SpeedEvaluator.evaluateDifficultyOf(standardCurrent);
 
-    this._currentStrain *= this._strainDecay(standardCurrent.strainTime);
+    if (this._mods.any(StandardAutopilot)) difficulty *= 0.5;
 
-    const speedValue = SpeedEvaluator.evaluateDifficultyOf(current);
+    this._currentStrain *= decay;
+    this._currentStrain += difficulty * (1 - decay) * 1.16;
 
-    this._currentStrain += speedValue * Speed.SKILL_MULTIPLIER;
-    this._currentRhythm = RhythmEvaluator.evaluateDifficultyOf(current);
+    const totalStrain = this._currentStrain * RhythmEvaluator.evaluateDifficultyOf(standardCurrent);
 
-    const totalStrain = this._currentStrain * this._currentRhythm;
-
-    this._objectStrains.push(totalStrain);
+    if (standardCurrent.baseObject instanceof Slider) this._sliderStrains.push(totalStrain);
 
     return totalStrain;
   }
 
-  relevantNoteCount(): number {
-    if (this._objectStrains.length === 0) return 0;
+  relevantObjectCount(): number {
+    if (this._objectDifficulties.length === 0) return 0;
 
-    const maxStrain = Math.max(...this._objectStrains);
+    const maxStrain = Math.max(...this._objectDifficulties);
 
     if (maxStrain === 0) return 0;
 
-    return this._objectStrains.reduce((sum, strain) => {
-      return sum + 1 / (1 + Math.exp(6 - strain / maxStrain * 12));
+    return this._objectDifficulties.reduce((sum, strain) => {
+      return sum + 1 / (1 + Math.exp(-(strain / maxStrain * 12 - 6)));
+    }, 0);
+  }
+
+  countTopWeightedSliders(difficultyValue: number): number {
+    if (this._sliderStrains.length === 0 || this._objectWeightSum === 0) return 0;
+
+    const consistentTopObject = difficultyValue / this._objectWeightSum;
+
+    if (consistentTopObject === 0) return 0;
+
+    return this._sliderStrains.reduce((sum, strain) => {
+      return sum + 1.1 / (1 + Math.exp(10 * (0.88 - strain / consistentTopObject)));
     }, 0);
   }
 }

@@ -3,8 +3,8 @@ import { DifficultyAttributes, HitResult, IRuleset, IScoreInfo, PerformanceCalcu
 import { StandardAutopilot, StandardClassic, StandardDoubleTime, StandardEasy, StandardFlashlight, StandardHalfTime, StandardHardRock, StandardHidden, StandardModCombination, StandardNightcore, StandardNoFail, StandardRelax, StandardScoreV2, StandardSpunOut } from '../Mods';
 import { StandardHitResult } from '../Scoring';
 import { StandardDifficultyAttributes, StandardPerformanceAttributes } from './Attributes';
-import { reverseLerp, smoothstep } from './Evaluators/JulyAimMath';
-import { cognitionValue, erf, erfInv, norm } from './JulyPerformanceMath';
+import { reverseLerp, smoothstep } from './Evaluators/AimMath';
+import { cognitionValue, erf, erfInv, norm } from './PerformanceMath';
 
 /** July 2026 performance calculation for supported osu!standard score settings. */
 export class StandardPerformanceCalculator extends PerformanceCalculator {

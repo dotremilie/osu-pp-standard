@@ -7,13 +7,13 @@ import { Circle, Slider, Spinner } from '../src/Objects';
 import { StandardRuleset } from '../src/StandardRuleset';
 import { StandardHitWindows } from '../src/Scoring';
 import { StandardDifficultyHitObject } from '../src/Difficulty/Preprocessing';
-import { JulySpeedEvaluator } from '../src/Difficulty/Evaluators/JulySpeedEvaluator';
-import { JulyRhythmEvaluator } from '../src/Difficulty/Evaluators/JulyRhythmEvaluator';
+import { SpeedEvaluator } from '../src/Difficulty/Evaluators/SpeedEvaluator';
+import { RhythmEvaluator } from '../src/Difficulty/Evaluators/RhythmEvaluator';
 import { HarmonicSkill } from '../src/Difficulty/Skills/HarmonicSkill';
 import { VariableLengthStrainSkill } from '../src/Difficulty/Skills/VariableLengthStrainSkill';
-import { JulySpeed } from '../src/Difficulty/Skills/JulySpeed';
-import { JulyReading } from '../src/Difficulty/Skills/JulyReading';
-import { JulyAim } from '../src/Difficulty/Skills/JulyAim';
+import { Speed } from '../src/Difficulty/Skills/Speed';
+import { Reading } from '../src/Difficulty/Skills/Reading';
+import { Aim } from '../src/Difficulty/Skills/Aim';
 
 function objectAt(startTime: number, value: number): DifficultyHitObject {
   return {
@@ -243,7 +243,7 @@ test('July speed evaluator applies the OD cap and high BPM bonus', () => {
   const strainTime = 100 / Math.min(1, Math.max(0.92, (100 / current.hitWindowGreat) / 0.93));
   const expected = 1000 / strainTime / (1 - Math.pow(0.3, 0.1));
 
-  expect(JulySpeedEvaluator.evaluateDifficultyOf(current)).toBeCloseTo(expected, 10);
+  expect(SpeedEvaluator.evaluateDifficultyOf(current)).toBeCloseTo(expected, 10);
 });
 
 test('July rhythm evaluator distinguishes repeated timing from changing islands', () => {
@@ -269,8 +269,8 @@ test('July rhythm evaluator distinguishes repeated timing from changing islands'
   const even = createDifficultyObjects([1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800]);
   const changing = createDifficultyObjects([1000, 1200, 1400, 1500, 1600, 1800, 2000, 2100, 2200]);
 
-  expect(JulyRhythmEvaluator.evaluateDifficultyOf(even[even.length - 1])).toBe(1);
-  expect(JulyRhythmEvaluator.evaluateDifficultyOf(changing[changing.length - 1])).toBeGreaterThan(1);
+  expect(RhythmEvaluator.evaluateDifficultyOf(even[even.length - 1])).toBe(1);
+  expect(RhythmEvaluator.evaluateDifficultyOf(changing[changing.length - 1])).toBeGreaterThan(1);
 });
 
 test('July Speed uses harmonic strain and Relax disables tapping difficulty', () => {
@@ -284,8 +284,8 @@ test('July Speed uses harmonic strain and Relax disables tapping difficulty', ()
   second.hitWindows.setDifficulty(5);
 
   const difficultyObject = new StandardDifficultyHitObject(second, first, 1, [], 0);
-  const speed = new JulySpeed(new StandardModCombination());
-  const relaxedSpeed = new JulySpeed(new StandardModCombination('RX'));
+  const speed = new Speed(new StandardModCombination());
+  const relaxedSpeed = new Speed(new StandardModCombination('RX'));
 
   speed.process(difficultyObject);
   relaxedSpeed.process(difficultyObject);
@@ -338,7 +338,7 @@ test('July Speed matches the pinned official difficulty component', () => {
       objects.push(new StandardDifficultyHitObject(beatmap.hitObjects[i], beatmap.hitObjects[i - 1], fixture.rate, objects, i - 1));
     }
 
-    const speed = new JulySpeed(mods);
+    const speed = new Speed(mods);
 
     objects.forEach((object) => speed.process(object));
 
@@ -386,7 +386,7 @@ test('July Reading matches the pinned official difficulty component', () => {
       objects.push(new StandardDifficultyHitObject(beatmap.hitObjects[i], beatmap.hitObjects[i - 1], fixture.rate, objects, i - 1));
     }
 
-    const reading = new JulyReading(mods);
+    const reading = new Reading(mods);
 
     objects.forEach((object) => reading.process(object));
 
@@ -442,8 +442,8 @@ test('July Aim matches the pinned official difficulty component', () => {
       objects.push(new StandardDifficultyHitObject(beatmap.hitObjects[i], beatmap.hitObjects[i - 1], fixture.rate, objects, i - 1));
     }
 
-    const aim = new JulyAim(mods, true);
-    const aimWithoutSliders = new JulyAim(mods, false);
+    const aim = new Aim(mods, true);
+    const aimWithoutSliders = new Aim(mods, false);
 
     objects.forEach((object) => {
       aim.process(object);

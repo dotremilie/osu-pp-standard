@@ -1,9 +1,9 @@
 // Adapted from ppy/osu at 2026.711.0-lazer. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { DifficultyHitObject } from 'osu-classes';
-import { JulySkill } from './JulySkill';
+import { Skill } from './Skill';
 
 /** Per-object difficulty summation used by Reading and Speed in July 2026. */
-export abstract class HarmonicSkill extends JulySkill {
+export abstract class HarmonicSkill extends Skill {
   protected _objectWeightSum = 0;
 
   protected get _harmonicScale(): number {

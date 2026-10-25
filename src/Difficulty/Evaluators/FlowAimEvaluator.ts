@@ -1,11 +1,11 @@
 // Adapted from ppy/osu at 2026.711.0-lazer. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { Slider, Spinner } from '../../Objects';
 import { StandardDifficultyHitObject } from '../Preprocessing';
-import { smootherstep, smoothstep } from './JulyAimMath';
-import { JulySnapAimEvaluator } from './JulySnapAimEvaluator';
+import { smootherstep, smoothstep } from './AimMath';
+import { SnapAimEvaluator } from './SnapAimEvaluator';
 
 /** Flow movement contribution to July 2026 Aim. */
-export class JulyFlowAimEvaluator {
+export class FlowAimEvaluator {
   static evaluateDifficultyOf(current: StandardDifficultyHitObject, withSliderTravelDistance: boolean): number {
     const previous = current.previous(0) as StandardDifficultyHitObject | null;
 
@@ -45,7 +45,7 @@ export class JulyFlowAimEvaluator {
     }
 
     if (current.angle !== null) {
-      difficulty += currentVelocity * JulySnapAimEvaluator.angleAcuteness(current.angle) * overlapWeight;
+      difficulty += currentVelocity * SnapAimEvaluator.angleAcuteness(current.angle) * overlapWeight;
     }
 
     if (Math.max(previousVelocity, currentVelocity) !== 0) {

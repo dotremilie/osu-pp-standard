@@ -1,12 +1,12 @@
 // Adapted from ppy/osu at 2026.711.0-lazer. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { DifficultyHitObject } from 'osu-classes';
 import { StandardAutopilot, StandardHidden, StandardRelax, StandardTouchDevice } from '../../Mods';
-import { JulyReadingEvaluator } from '../Evaluators/JulyReadingEvaluator';
+import { ReadingEvaluator } from '../Evaluators/ReadingEvaluator';
 import { StandardDifficultyHitObject } from '../Preprocessing';
 import { HarmonicSkill } from './HarmonicSkill';
 
-/** July 2026 reading skill, kept internal until the complete rating port. */
-export class JulyReading extends HarmonicSkill {
+/** osu!standard reading skill from the July 2026 rework. */
+export class Reading extends HarmonicSkill {
   private _currentStrain = 0;
   private readonly _objects: DifficultyHitObject[] = [];
 
@@ -15,7 +15,7 @@ export class JulyReading extends HarmonicSkill {
 
     const standardCurrent = current as StandardDifficultyHitObject;
     const decay = Math.pow(0.8, current.deltaTime / 1000);
-    let difficulty = JulyReadingEvaluator.evaluateDifficultyOf(
+    let difficulty = ReadingEvaluator.evaluateDifficultyOf(
       standardCurrent,
       this._mods.any(StandardHidden),
     );

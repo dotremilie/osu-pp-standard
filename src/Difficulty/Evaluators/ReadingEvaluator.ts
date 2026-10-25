@@ -4,7 +4,7 @@ import { Spinner } from '../../Objects';
 import { StandardDifficultyHitObject } from '../Preprocessing';
 
 /** July 2026 per-object reading difficulty before strain accumulation. */
-export class JulyReadingEvaluator {
+export class ReadingEvaluator {
   private static readonly READING_WINDOW = 3000;
   private static readonly DISTANCE_THRESHOLD = 150;
 

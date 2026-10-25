@@ -3,7 +3,7 @@ import { Slider, Spinner } from '../../Objects';
 import { StandardDifficultyHitObject } from '../Preprocessing';
 
 /** Cursor speed contribution to July 2026 Aim. */
-export class JulyAgilityEvaluator {
+export class AgilityEvaluator {
   static evaluateDifficultyOf(current: StandardDifficultyHitObject): number {
     if (current.baseObject instanceof Spinner) return 0;
 

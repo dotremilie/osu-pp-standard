@@ -18,16 +18,13 @@ import {
   StandardTouchDevice,
 } from '../Mods';
 
-import { Flashlight } from './Skills';
-import { JulyAim } from './Skills/JulyAim';
-import { JulySpeed } from './Skills/JulySpeed';
-import { JulyReading } from './Skills/JulyReading';
+import { Aim, Flashlight, Reading, Speed } from './Skills';
 import { StandardDifficultyAttributes } from './Attributes';
 import { StandardDifficultyHitObject } from './Preprocessing';
 import { Circle, Slider, Spinner } from '../Objects';
 import { StandardHitWindows } from '../Scoring';
-import { cognitionValue, norm } from './JulyPerformanceMath';
-import { calculateLegacyScoreAttributes } from './JulyLegacyScore';
+import { cognitionValue, norm } from './PerformanceMath';
+import { calculateLegacyScoreAttributes } from './LegacyScoreUtils';
 
 export class StandardDifficultyCalculator extends DifficultyCalculator<StandardDifficultyAttributes> {
   private readonly _DIFFICULTY_MULTIPLIER = 0.0675;
@@ -42,10 +39,10 @@ export class StandardDifficultyCalculator extends DifficultyCalculator<StandardD
       return new StandardDifficultyAttributes(mods, 0);
     }
 
-    const aim = skills[0] as JulyAim;
-    const aimWithoutSliders = skills[1] as JulyAim;
-    const speed = skills[2] as JulySpeed;
-    const reading = skills[3] as JulyReading;
+    const aim = skills[0] as Aim;
+    const aimWithoutSliders = skills[1] as Aim;
+    const speed = skills[2] as Speed;
+    const reading = skills[3] as Reading;
     const aimValue = aim.difficultyValue;
     const aimWithoutSlidersValue = aimWithoutSliders.difficultyValue;
     const speedValue = speed.difficultyValue;
@@ -156,10 +153,10 @@ export class StandardDifficultyCalculator extends DifficultyCalculator<StandardD
 
   protected _createSkills(beatmap: IBeatmap, mods: StandardModCombination): Skill[] {
     return [
-      new JulyAim(mods, true),
-      new JulyAim(mods, false),
-      new JulySpeed(mods),
-      new JulyReading(mods),
+      new Aim(mods, true),
+      new Aim(mods, false),
+      new Speed(mods),
+      new Reading(mods),
       new Flashlight(mods, beatmap.hitObjects.length),
     ];
   }

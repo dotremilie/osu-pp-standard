@@ -1,6 +1,6 @@
 // Adapted from ppy/osu at 2026.711.0-lazer. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { DifficultyHitObject, ModCombination } from 'osu-classes';
-import { JulySkill } from './JulySkill';
+import { Skill } from './Skill';
 
 export interface StrainPeak {
   readonly value: number;
@@ -8,7 +8,7 @@ export interface StrainPeak {
 }
 
 /** One peak per changing strain, with sections of at most 400ms by default. */
-export abstract class VariableLengthStrainSkill extends JulySkill {
+export abstract class VariableLengthStrainSkill extends Skill {
   protected readonly _decayWeight: number;
   protected readonly _maxSectionLength: number;
 

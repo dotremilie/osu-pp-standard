@@ -41,14 +41,7 @@ export class StandardEventGenerator extends EventGenerator {
 
           break;
         }
-        case SliderEventType.LegacyLastTick: {
-          /**
-           * We need to use the LegacyLastTick here 
-           * for compatibility reasons (difficulty).
-           * it is *okay* to use this because the TailCircle 
-           * is not used for any meaningful purpose in gameplay.
-           * if this is to change, we should revisit this.
-           */
+        case SliderEventType.Tail: {
           const tail = new SliderTail(slider);
 
           tail.repeatIndex = event.spanIndex as number;

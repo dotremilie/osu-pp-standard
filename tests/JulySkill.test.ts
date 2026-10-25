@@ -1,7 +1,12 @@
+import fs from 'fs';
+import path from 'path';
 import { DifficultyHitObject, Vector2 } from 'osu-classes';
+import { BeatmapDecoder } from 'osu-parsers';
 import { StandardModCombination } from '../src/Mods';
-import { Circle, Spinner } from '../src/Objects';
+import { Circle, Slider, Spinner } from '../src/Objects';
+import { StandardRuleset } from '../src/StandardRuleset';
 import { StandardDifficultyHitObject } from '../src/Difficulty/Preprocessing';
+import { JulySpeedEvaluator } from '../src/Difficulty/Evaluators/JulySpeedEvaluator';
 import { HarmonicSkill } from '../src/Difficulty/Skills/HarmonicSkill';
 import { VariableLengthStrainSkill } from '../src/Difficulty/Skills/VariableLengthStrainSkill';
 
@@ -116,11 +121,20 @@ test('July timing and jump fields account for clock rate and prior object end', 
   third.startPosition = new Vector2(164, 164);
 
   const objects: StandardDifficultyHitObject[] = [];
-  const secondDifficulty = new StandardDifficultyHitObject(second, first, null, 2, objects, 0);
+  const secondDifficulty = new StandardDifficultyHitObject(second, first, 2, objects, 0);
 
   objects.push(secondDifficulty);
 
-  const thirdDifficulty = new StandardDifficultyHitObject(third, second, first, 2, objects, 1);
+  const thirdDifficulty = new StandardDifficultyHitObject(third, second, 2, objects, 1);
+
+  objects.push(thirdDifficulty);
+
+  const fourth = new Circle();
+
+  fourth.startTime = 1320;
+  fourth.startPosition = new Vector2(100, 164);
+
+  const fourthDifficulty = new StandardDifficultyHitObject(fourth, third, 2, objects, 2);
 
   expect(secondDifficulty.adjustedDeltaTime).toBe(50);
   expect(secondDifficulty.lastObjectEndDeltaTime).toBe(50);
@@ -128,7 +142,9 @@ test('July timing and jump fields account for clock rate and prior object end', 
   expect(secondDifficulty.jumpDistance).toBe(100);
   expect(thirdDifficulty.adjustedDeltaTime).toBe(25);
   expect(thirdDifficulty.lastObjectEndDeltaTime).toBe(25);
-  expect(thirdDifficulty.normalisedVectorAngle).toBeCloseTo(Math.PI / 2);
+  expect(thirdDifficulty.angle).toBeNull();
+  expect(fourthDifficulty.angle).toBeCloseTo(Math.PI / 2);
+  expect(fourthDifficulty.normalisedVectorAngle).toBeCloseTo(0);
   expect(secondDifficulty.calculateDoubleTapFeasibility(thirdDifficulty)).toBe(0);
   expect(secondDifficulty.calculateDoubleTapFeasibility(null)).toBe(0);
 });
@@ -148,11 +164,11 @@ test('July end delta uses the wrapped previous object duration', () => {
   third.startTime = 1550;
 
   const objects: StandardDifficultyHitObject[] = [];
-  const spinnerDifficulty = new StandardDifficultyHitObject(spinner, first, null, 1, objects, 0);
+  const spinnerDifficulty = new StandardDifficultyHitObject(spinner, first, 1, objects, 0);
 
   objects.push(spinnerDifficulty);
 
-  const thirdDifficulty = new StandardDifficultyHitObject(third, spinner, first, 1, objects, 1);
+  const thirdDifficulty = new StandardDifficultyHitObject(third, spinner, 1, objects, 1);
 
   expect(thirdDifficulty.deltaTime).toBe(450);
   expect(thirdDifficulty.lastObjectEndDeltaTime).toBe(50);
@@ -173,11 +189,46 @@ test('double tap feasibility rises for a stacked rhythm change', () => {
   third.startTime = 1325;
 
   const objects: StandardDifficultyHitObject[] = [];
-  const secondDifficulty = new StandardDifficultyHitObject(second, first, null, 1, objects, 0);
+  const secondDifficulty = new StandardDifficultyHitObject(second, first, 1, objects, 0);
 
   objects.push(secondDifficulty);
 
-  const thirdDifficulty = new StandardDifficultyHitObject(third, second, first, 1, objects, 1);
+  const thirdDifficulty = new StandardDifficultyHitObject(third, second, 1, objects, 1);
 
   expect(secondDifficulty.calculateDoubleTapFeasibility(thirdDifficulty)).toBeGreaterThan(0.8);
+});
+
+test('converted slider tail is at its end while difficulty tracks to legacy leniency', () => {
+  const source = fs.readFileSync(path.resolve(__dirname, 'Files/July2026/very-fast-slider.osu'), 'utf8');
+  const parsed = new BeatmapDecoder().decodeFromString(source, false);
+  const beatmap = new StandardRuleset().applyToBeatmap(parsed);
+  const slider = beatmap.hitObjects[0] as Slider;
+
+  expect(slider).toBeInstanceOf(Slider);
+  expect(slider.tail?.startTime).toBeCloseTo(slider.endTime);
+
+  const previous = new Circle();
+
+  previous.startTime = slider.startTime - 100;
+
+  new StandardDifficultyHitObject(slider, previous, 1, [], 0);
+
+  expect(slider.lazyTravelTime).toBeCloseTo(Math.max(slider.duration - 36, slider.duration / 2));
+});
+
+test('July speed evaluator applies the OD cap and high BPM bonus', () => {
+  const first = new Circle();
+
+  first.startTime = 1000;
+
+  const second = new Circle();
+
+  second.startTime = 1100;
+  second.hitWindows.setDifficulty(5);
+
+  const current = new StandardDifficultyHitObject(second, first, 1, [], 0);
+  const strainTime = 100 / Math.min(1, Math.max(0.92, (100 / current.hitWindowGreat) / 0.93));
+  const expected = 1000 / strainTime / (1 - Math.pow(0.3, 0.1));
+
+  expect(JulySpeedEvaluator.evaluateDifficultyOf(current)).toBeCloseTo(expected, 10);
 });

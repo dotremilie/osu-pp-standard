@@ -123,14 +123,12 @@ export class StandardDifficultyCalculator extends DifficultyCalculator<StandardD
      * If the map has less than two hit objects, the enumerator will not return anything.
      */
     for (let i = 1; i < beatmap.hitObjects.length; ++i) {
-      const lastLast = i > 1 ? beatmap.hitObjects[i - 2] : null;
       const last = beatmap.hitObjects[i - 1];
       const current = beatmap.hitObjects[i];
 
       const object = new StandardDifficultyHitObject(
         current,
         last,
-        lastLast,
         clockRate,
         difficultyObjects,
         difficultyObjects.length,

@@ -14,9 +14,9 @@ The official star ratings and max combos in `tests/Files/July2026/reference.json
 
 Run `npm run compare:reference -- --report` to display the current differences without failing the command. Run `npm run compare:reference` as a parity gate; it exits unsuccessfully until all cases match within `0.00001` stars, exact max combo, and `0.00001` PP/component values. Classic scoring is reported as unsupported until it is implemented.
 
-Initial upstream baseline: all 8 reference cases have matching max combo, none have matching star rating, and none of the 6 PP cases match. This is expected before the July port. The existing `tests/Files/Standard/Attributes` fixtures cover the older upstream formulas and should not be treated as July results.
+Initial upstream baseline: all 8 reference cases have matching max combo, none have matching star rating, and none of the 6 PP cases match. This is expected before the July port. The existing `tests/Files/Standard/Attributes` fixtures cover the older upstream formulas and should not be treated as July results. Their test source is retained as `tests/Ruleset.legacy.ts` and excluded from the default Jest run once July preprocessing changed. `npm run compare:reference` is the required parity gate and is part of `prepublishOnly`.
 
-The port now has additional July timing, jump, and OD data on `StandardDifficultyHitObject`, plus standalone harmonic and variable-length skill accumulators. `tests/JulySkill.test.ts` checks their basic behavior. The active Aim, Speed, and PP calculators still use the inherited formulas; the reference comparison remains at 0/14 matching cases. The new accumulators are internal until their evaluators and attributes are ported together.
+The port now has additional July timing, jump, and OD data on `StandardDifficultyHitObject`, plus standalone harmonic and variable-length skill accumulators. Slider tails are placed at their true end time, and the difficulty wrapper applies the official tracking leniency and angle rules. The July per-object Speed evaluator is implemented separately. `tests/JulySkill.test.ts` checks these behaviors. The active Aim, Speed, and PP calculators still use the inherited formulas; the reference comparison remains at 0/14 matching cases. The new accumulators and evaluator are internal until their skills and attributes are ported together.
 
 Port order:
 

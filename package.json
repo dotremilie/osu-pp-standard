@@ -20,7 +20,7 @@
     "compare:reference": "npm run build && node scripts/compare-reference.mjs",
     "fix": "eslint --fix ./src",
     "format": "eslint --fix ./lib/** --no-ignore",
-    "prepublishOnly": "npm run build && npm run test",
+    "prepublishOnly": "npm run test && npm run compare:reference",
     "docs": "npx typedoc src/index.ts"
   },
   "keywords": [

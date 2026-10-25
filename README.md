@@ -2,7 +2,7 @@
 
 TypeScript fork of [kionell/osu-standard-stable](https://github.com/kionell/osu-standard-stable) for osu!standard difficulty and performance calculation.
 
-**Port status:** The fork currently contains the upstream April 2025 formulas. It does not yet match the official July 2026 rework. See [the reference comparison](docs/REFERENCE_20260706.md) before using its output as current PP. The original upstream API documentation follows below.
+**Port status:** Slider preprocessing and internal skill foundations are being ported to July 2026. The active Aim, Speed, and PP formulas still come from upstream April 2025, so output does not yet match the official July 2026 rework. See [the reference comparison](docs/REFERENCE_20260706.md) before using its output as current PP. The original upstream API documentation follows below.
 
 - Supports TypeScript.
 - Based on the osu!lazer source code.
@@ -17,8 +17,11 @@ This fork is not published to npm yet. To work on it locally:
 ```bash
 npm ci
 npm run build
+npm test
 npm run compare:reference -- --report
 ```
+
+`npm test` checks the ported components. `npm run compare:reference` is the full official parity gate and currently fails; publication also runs this gate.
 
 ## Requirements
 

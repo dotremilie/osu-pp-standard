@@ -78,4 +78,9 @@ export class StandardDifficultyAttributes extends DifficultyAttributes {
    * The number of spinners in the beatmap.
    */
   spinnerCount = 0;
+
+  /** ScoreV1 metadata used when estimating misses from a stable total score. */
+  nestedScorePerObject = 0;
+  legacyScoreBaseMultiplier = 0;
+  maximumLegacyComboScore = 0;
 }

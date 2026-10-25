@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { HitResult, ScoreInfo } from 'osu-classes';
+import { HitResult } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardHitResult, StandardRuleset } from '../lib/index.mjs';
+import { StandardHitResult, StandardRuleset, StandardScoreInfo } from '../lib/index.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fixtureDirectory = path.join(root, 'tests', 'Files', 'July2026');
@@ -40,7 +40,7 @@ console.log(`${reference.cases.length - failures}/${reference.cases.length} diff
 console.log('\nPP cases: fork / reference');
 
 for (const fixture of performanceReference) {
-  const name = `${fixture.beatmap} +${fixture.mods} ${fixture.legacy ? 'stable' : 'lazer'} ${fixture.score.misses}m`;
+  const name = `${fixture.beatmap} +${fixture.mods} ${fixture.legacy ? 'stable' : 'lazer'} ${fixture.score.misses}m${fixture.score.legacyTotalScore == null ? '' : ` ${fixture.score.legacyTotalScore} score`}`;
 
   const beatmapPath = path.join(fixtureDirectory, fixture.beatmap);
   const parsed = decoder.decodeFromString(fs.readFileSync(beatmapPath, 'utf8'), false);
@@ -54,7 +54,7 @@ for (const fixture of performanceReference) {
   if (fixture.score.largeTickMisses > 0) scoreDetails.push(`${fixture.score.largeTickMisses} tick missed`);
 
   const caseName = scoreDetails.length > 0 ? `${name}, ${scoreDetails.join(', ')}` : name;
-  const score = new ScoreInfo({
+  const score = new StandardScoreInfo({
     maxCombo: fixture.score.maxCombo,
     mods,
     accuracy: fixture.score.accuracy,
@@ -65,6 +65,9 @@ for (const fixture of performanceReference) {
   score.statistics.set(HitResult.LargeTickMiss, fixture.score.largeTickMisses ?? 0);
   score.statistics.set(StandardHitResult.SliderTailHit,
     fixture.score.sliderTailHits ?? difficulty.sliderCount);
+  if (fixture.score.legacyTotalScore !== null && fixture.score.legacyTotalScore !== undefined) {
+    score.legacyTotalScore = fixture.score.legacyTotalScore;
+  }
 
   const actual = ruleset.createPerformanceCalculator(difficulty, score).calculateAttributes();
   const compared = [
@@ -77,10 +80,18 @@ for (const fixture of performanceReference) {
     ['EffectiveMissCount', actual.effectiveMissCount],
     ['SpeedDeviation', actual.speedDeviation],
   ];
-  const differences = compared
+  const performanceDifferences = compared
     .filter(([field, value]) => !Number.isFinite(value)
       || Math.abs(value - fixture.performance[field]) > tolerance)
     .map(([field]) => field);
+  const difficultyDifferences = [
+    ['NestedScorePerObject', difficulty.nestedScorePerObject],
+    ['LegacyScoreBaseMultiplier', difficulty.legacyScoreBaseMultiplier],
+    ['MaximumLegacyComboScore', difficulty.maximumLegacyComboScore],
+  ].filter(([field, value]) => !Number.isFinite(value)
+    || Math.abs(value - fixture.difficulty[field]) > tolerance)
+    .map(([field]) => field);
+  const differences = [...difficultyDifferences, ...performanceDifferences];
 
   if (differences.length > 0) failures += 1;
 

@@ -27,6 +27,7 @@ import { StandardDifficultyHitObject } from './Preprocessing';
 import { Circle, Slider, Spinner } from '../Objects';
 import { StandardHitWindows } from '../Scoring';
 import { cognitionValue, norm } from './JulyPerformanceMath';
+import { calculateLegacyScoreAttributes } from './JulyLegacyScore';
 
 export class StandardDifficultyCalculator extends DifficultyCalculator<StandardDifficultyAttributes> {
   private readonly _DIFFICULTY_MULTIPLIER = 0.0675;
@@ -84,6 +85,7 @@ export class StandardDifficultyCalculator extends DifficultyCalculator<StandardD
     const hitWindowGreat = hitWindows.windowFor(HitResult.Great) / clockRate;
     const hitWindowOk = hitWindows.windowFor(HitResult.Ok) / clockRate;
     const hitWindowMeh = hitWindows.windowFor(HitResult.Meh) / clockRate;
+    const legacyScore = calculateLegacyScoreAttributes(beatmap);
 
     const attributes = new StandardDifficultyAttributes(mods, starRating);
 
@@ -111,6 +113,9 @@ export class StandardDifficultyCalculator extends DifficultyCalculator<StandardD
     attributes.hitCircleCount = circles.length;
     attributes.sliderCount = sliders.length;
     attributes.spinnerCount = spinners.length;
+    attributes.nestedScorePerObject = legacyScore.nestedScorePerObject;
+    attributes.legacyScoreBaseMultiplier = legacyScore.legacyScoreBaseMultiplier;
+    attributes.maximumLegacyComboScore = legacyScore.maximumLegacyComboScore;
     attributes.maxCombo = circles.length + spinners.length + nested;
     attributes.drainRate = beatmap.difficulty.drainRate;
     attributes.overallDifficulty = (79.5 - hitWindowGreat) / 6;

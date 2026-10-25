@@ -1,6 +1,6 @@
 // July 2026 osu!standard performance adapted from ppy/osu. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { DifficultyAttributes, HitResult, IRuleset, IScoreInfo, PerformanceCalculator } from 'osu-classes';
-import { StandardAutopilot, StandardClassic, StandardFlashlight, StandardModCombination, StandardNoFail, StandardRelax, StandardSpunOut } from '../Mods';
+import { StandardAutopilot, StandardClassic, StandardDoubleTime, StandardEasy, StandardFlashlight, StandardHalfTime, StandardHardRock, StandardHidden, StandardModCombination, StandardNightcore, StandardNoFail, StandardRelax, StandardSpunOut } from '../Mods';
 import { StandardHitResult } from '../Scoring';
 import { StandardDifficultyAttributes, StandardPerformanceAttributes } from './Attributes';
 import { reverseLerp, smoothstep } from './Evaluators/JulyAimMath';
@@ -21,6 +21,7 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
   private _countSliderTickMiss = 0;
   private _countSliderEndsDropped = 0;
   private _accuracy = 1;
+  private _legacyTotalScore: number | null = null;
   private _effectiveMissCount = 0;
   private _speedDeviation: number | null = null;
   private _aimEstimatedSliderBreaks = 0;
@@ -39,7 +40,10 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
     const difficulty = this.attributes;
     const comboMisses = this._calculateComboBasedEstimatedMissCount(difficulty);
 
-    this._effectiveMissCount = Math.min(this._totalHits, Math.max(this._countMiss, comboMisses));
+    const estimatedMisses = this._usingClassicSliderAccuracy && this._legacyTotalScore !== null
+      ? this._calculateLegacyScoreEstimatedMissCount(difficulty) : comboMisses;
+
+    this._effectiveMissCount = Math.min(this._totalHits, Math.max(this._countMiss, estimatedMisses));
     this._speedDeviation = this._calculateSpeedDeviation(difficulty);
     this._aimEstimatedSliderBreaks = this._effectiveMissCount > 0
       ? this._calculateEstimatedSliderBreaks(difficulty.aimTopWeightedSliderFactor, difficulty) : 0;
@@ -210,6 +214,80 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
     return Math.min(misses, this._countSliderTickMiss + this._countMiss);
   }
 
+  private _calculateLegacyScoreEstimatedMissCount(attributes: StandardDifficultyAttributes): number {
+    if (attributes.maxCombo === 0 || this._legacyTotalScore === null) return 0;
+
+    const multiplier = attributes.legacyScoreBaseMultiplier * this._legacyScoreMultiplier();
+    const rawComboScore = attributes.maximumLegacyComboScore /
+      (12 * attributes.legacyScoreBaseMultiplier);
+    const relevantComboPerObject = (attributes.maxCombo - 2) * attributes.maxCombo /
+      Math.max(attributes.maxCombo + 2 * (rawComboScore - 1), 1);
+    const maximumMissCount = this._calculateMaximumLegacyMissCount(attributes);
+    const scoreDuringMaxCombo = this._calculateScoreAtCombo(this._scoreMaxCombo,
+      relevantComboPerObject,
+      multiplier,
+      attributes);
+    const remainingScore = this._legacyTotalScore - scoreDuringMaxCombo;
+
+    if (remainingScore <= 0) return maximumMissCount;
+
+    const expectedRemainingScore = this._calculateScoreAtCombo(attributes.maxCombo - this._scoreMaxCombo,
+      relevantComboPerObject,
+      multiplier,
+      attributes);
+
+    return Math.min(Math.max(expectedRemainingScore / remainingScore, 1), maximumMissCount);
+  }
+
+  private _calculateScoreAtCombo(combo: number, relevantComboPerObject: number,
+    multiplier: number, attributes: StandardDifficultyAttributes): number {
+    const estimatedObjects = combo / relevantComboPerObject - 1;
+    let comboScore = relevantComboPerObject > 0
+      ? (2 * (relevantComboPerObject - 1) + (estimatedObjects - 1) * relevantComboPerObject) * estimatedObjects / 2 : 0;
+
+    comboScore *= this._accuracy * 12 * multiplier;
+
+    const objectsHit = this._totalSuccessfulHits * combo / attributes.maxCombo;
+    const nonComboScore = (300 + attributes.nestedScorePerObject) * this._accuracy * objectsHit;
+
+    return comboScore + nonComboScore;
+  }
+
+  private _calculateMaximumLegacyMissCount(attributes: StandardDifficultyAttributes): number {
+    if (attributes.sliderCount <= 0) return this._countMiss;
+
+    const likelyTailPortion = 0.04 + 0.06 *
+      Math.pow(Math.min(attributes.aimTopWeightedSliderFactor, 1), 2);
+    const fullComboThreshold = attributes.maxCombo -
+      Math.min(4 + likelyTailPortion * attributes.sliderCount, attributes.sliderCount);
+    let misses = this._scoreMaxCombo < fullComboThreshold
+      ? Math.pow(fullComboThreshold / Math.max(1, this._scoreMaxCombo), 2.5) : 0;
+
+    misses = Math.min(misses, this._totalImperfectHits);
+
+    const possibleBreaks = Math.min(attributes.sliderCount,
+      Math.trunc((attributes.maxCombo - this._scoreMaxCombo) / 2));
+
+    return misses - this._countMiss > possibleBreaks ? this._countMiss + possibleBreaks : misses;
+  }
+
+  private _legacyScoreMultiplier(): number {
+    if (this._mods.any(StandardRelax) || this._mods.any(StandardAutopilot)) return 0;
+
+    let multiplier = 1;
+
+    if (this._mods.any(StandardNoFail)) multiplier *= 0.5;
+    if (this._mods.any(StandardEasy)) multiplier *= 0.5;
+    if (this._mods.any(StandardHalfTime)) multiplier *= 0.3;
+    if (this._mods.any(StandardHidden)) multiplier *= 1.06;
+    if (this._mods.any(StandardHardRock)) multiplier *= 1.06;
+    if (this._mods.any(StandardDoubleTime) || this._mods.any(StandardNightcore)) multiplier *= 1.12;
+    if (this._mods.any(StandardFlashlight)) multiplier *= 1.12;
+    if (this._mods.any(StandardSpunOut)) multiplier *= 0.9;
+
+    return multiplier;
+  }
+
   private _calculateEstimatedSliderBreaks(factor: number, attributes: StandardDifficultyAttributes): number {
     const nonMissMistakes = this._countOk + this._countMeh;
     if (!this._usingClassicSliderAccuracy || nonMissMistakes === 0) return 0;
@@ -316,6 +394,7 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
       : Math.max(0, (this.attributes?.sliderCount ?? 0) - tailHits);
 
     this._accuracy = score.accuracy ?? this._accuracy;
+    this._legacyTotalScore = (score as IScoreInfo & { legacyTotalScore?: number | null, }).legacyTotalScore ?? null;
   }
 
   private get _totalHits(): number {

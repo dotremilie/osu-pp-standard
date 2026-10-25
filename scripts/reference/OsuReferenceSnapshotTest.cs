@@ -33,13 +33,17 @@ namespace osu.Game.Rulesets.Osu.Tests
             addCase("diffcalc-test", "NF", new Mod[] { new OsuModNoFail() }, false, 1, 10, 20, cases);
             addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 0, 0, 0, cases);
             addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 1, 10, 20, cases);
+            addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 363000);
+            addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 50000);
+            addCase("diffcalc-test", "HDCL", new Mod[] { new OsuModHidden(), new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 382000);
+            addCase("diffcalc-test", "HRCL", new Mod[] { new OsuModHardRock(), new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 382000);
             addCase("801165", "NM", Array.Empty<Mod>(), false, 0, 0, 0, cases);
 
             File.WriteAllText(Path.Combine(TestContext.CurrentContext.WorkDirectory, "july-reference.json"),
                 JsonConvert.SerializeObject(cases, Formatting.Indented));
         }
 
-        private void addCase(string name, string acronym, Mod[] mods, bool legacy, int misses, int oks, int comboDrop, List<object> cases, int tailsDropped = 0, int tickMisses = 0)
+        private void addCase(string name, string acronym, Mod[] mods, bool legacy, int misses, int oks, int comboDrop, List<object> cases, int tailsDropped = 0, int tickMisses = 0, int? legacyTotalScore = null)
         {
             var beatmap = GetBeatmap(name);
             var difficulty = (OsuDifficultyAttributes)CreateDifficultyCalculator(beatmap).Calculate(mods);
@@ -50,6 +54,7 @@ namespace osu.Game.Rulesets.Osu.Tests
             {
                 Mods = mods,
                 IsLegacyScore = legacy,
+                LegacyTotalScore = legacyTotalScore,
                 MaxCombo = difficulty.MaxCombo - comboDrop,
                 Accuracy = (greats + oks / 3.0) / totalHits,
                 Statistics = new Dictionary<HitResult, int>
@@ -69,7 +74,7 @@ namespace osu.Game.Rulesets.Osu.Tests
                 beatmap = name + ".osu",
                 mods = acronym,
                 legacy,
-                score = new { greats, oks, misses, maxCombo = score.MaxCombo, accuracy = score.Accuracy, sliderTailHits = difficulty.SliderCount - tailsDropped, largeTickMisses = tickMisses },
+                score = new { greats, oks, misses, maxCombo = score.MaxCombo, accuracy = score.Accuracy, sliderTailHits = difficulty.SliderCount - tailsDropped, largeTickMisses = tickMisses, legacyTotalScore },
                 difficulty = new
                 {
                     difficulty.StarRating,
@@ -79,7 +84,10 @@ namespace osu.Game.Rulesets.Osu.Tests
                     difficulty.ReadingDifficulty,
                     difficulty.FlashlightDifficulty,
                     difficulty.SpeedNoteCount,
-                    difficulty.SliderFactor
+                    difficulty.SliderFactor,
+                    difficulty.NestedScorePerObject,
+                    difficulty.LegacyScoreBaseMultiplier,
+                    difficulty.MaximumLegacyComboScore
                 },
                 performance = new
                 {

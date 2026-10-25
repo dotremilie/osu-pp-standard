@@ -8,7 +8,7 @@ export interface StrainPeak {
 }
 
 /** One peak per changing strain, with sections of at most 400ms by default. */
-export abstract class VariableLengthStrainSkill extends Skill {
+export abstract class StandardStrainSkill extends Skill {
   protected readonly _decayWeight: number;
   protected readonly _maxSectionLength: number;
 

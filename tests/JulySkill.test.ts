@@ -10,7 +10,7 @@ import { StandardDifficultyHitObject } from '../src/Difficulty/Preprocessing';
 import { SpeedEvaluator } from '../src/Difficulty/Evaluators/SpeedEvaluator';
 import { RhythmEvaluator } from '../src/Difficulty/Evaluators/RhythmEvaluator';
 import { HarmonicSkill } from '../src/Difficulty/Skills/HarmonicSkill';
-import { VariableLengthStrainSkill } from '../src/Difficulty/Skills/VariableLengthStrainSkill';
+import { StandardStrainSkill } from '../src/Difficulty/Skills/StandardStrainSkill';
 import { Speed } from '../src/Difficulty/Skills/Speed';
 import { Reading } from '../src/Difficulty/Skills/Reading';
 import { Aim } from '../src/Difficulty/Skills/Aim';
@@ -28,7 +28,7 @@ class TestHarmonicSkill extends HarmonicSkill {
   }
 }
 
-class TestVariableLengthStrainSkill extends VariableLengthStrainSkill {
+class TestStandardStrainSkill extends StandardStrainSkill {
   get difficultyValue(): number {
     return this.getCurrentStrainPeaks().reduce((sum, peak) => sum + peak.value, 0);
   }
@@ -56,7 +56,7 @@ test('harmonic weights sort positive difficulties and stay stable across reads',
 });
 
 test('variable strain sections backfill queued strains and replace the live peak', () => {
-  const skill = new TestVariableLengthStrainSkill(new StandardModCombination());
+  const skill = new TestStandardStrainSkill(new StandardModCombination());
 
   skill.process(objectAt(1000, 10));
   skill.process(objectAt(1100, 5));

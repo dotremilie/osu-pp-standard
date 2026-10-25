@@ -1,15 +1,13 @@
 // Adapted from ppy/osu at 2026.711.0-lazer. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { DifficultyHitObject } from 'osu-classes';
-import { StandardAutopilot, StandardModCombination, StandardRelax, StandardTouchDevice } from '../../Mods';
+import { StandardAutopilot, StandardModCombination } from '../../Mods';
 import { Slider } from '../../Objects';
-import { AgilityEvaluator } from '../Evaluators/AgilityEvaluator';
-import { FlowAimEvaluator } from '../Evaluators/FlowAimEvaluator';
-import { SnapAimEvaluator } from '../Evaluators/SnapAimEvaluator';
+import { AimEvaluator } from '../Evaluators/AimEvaluator';
 import { StandardDifficultyHitObject } from '../Preprocessing';
-import { StrainPeak, VariableLengthStrainSkill } from './VariableLengthStrainSkill';
+import { StrainPeak, StandardStrainSkill } from './StandardStrainSkill';
 
 /** osu!standard aim skill from the July 2026 rework. */
-export class Aim extends VariableLengthStrainSkill {
+export class Aim extends StandardStrainSkill {
   private _currentStrain = 0;
   private readonly _sliderStrains: number[] = [];
   private readonly _includeSliders: boolean;
@@ -28,36 +26,18 @@ export class Aim extends VariableLengthStrainSkill {
 
     const standardCurrent = current as StandardDifficultyHitObject;
     const decay = this._decay(standardCurrent.adjustedDeltaTime);
+    const difficulty = AimEvaluator.evaluateDifficultyOf(
+      standardCurrent,
+      this._includeSliders,
+      this._mods as StandardModCombination,
+    );
 
     this._currentStrain *= decay;
-    this._currentStrain += this._adjustedDifficulty(standardCurrent) * (1 - decay);
+    this._currentStrain += difficulty * (1 - decay);
 
     if (standardCurrent.baseObject instanceof Slider) this._sliderStrains.push(this._currentStrain);
 
     return this._currentStrain;
-  }
-
-  private _adjustedDifficulty(current: StandardDifficultyHitObject): number {
-    const snap = SnapAimEvaluator.evaluateDifficultyOf(current, this._includeSliders) * 70.9;
-    const agility = AgilityEvaluator.evaluateDifficultyOf(current) * 2.35;
-    let flow = FlowAimEvaluator.evaluateDifficultyOf(current, this._includeSliders) * 242;
-    let combinedSnap = Math.pow(Math.pow(snap, 1.2) + Math.pow(agility, 1.2), 1 / 1.2);
-    const ratio = flow / combinedSnap;
-    const snapProbability = ratio === 0 ? 0 : Number.isNaN(ratio)
-      ? 1 : 1 / (1 + Math.exp(-7.27 * Math.log(ratio)));
-
-    if (this._mods.any(StandardTouchDevice)) {
-      combinedSnap = Math.pow(Math.pow(Math.pow(snap, 0.89), 1.2) + Math.pow(agility, 1.2), 1 / 1.2);
-    }
-
-    if (this._mods.any(StandardRelax)) {
-      combinedSnap *= 0.75;
-      flow *= 0.6;
-    }
-
-    const total = (combinedSnap * snapProbability + flow * (1 - snapProbability)) * 1.12;
-
-    return total * (0.985 + Math.pow(Math.max(0, current.overallDifficulty), 2) / 4000);
   }
 
   private _decay(ms: number): number {

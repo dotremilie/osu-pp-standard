@@ -13,6 +13,7 @@
 !eslint.config.mjs
 !jest.config.ts
 !LICENSE
+!LICENCE.ppy
 !package-lock.json
 !package.json
 !README.md

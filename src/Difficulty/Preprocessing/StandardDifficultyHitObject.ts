@@ -17,6 +17,29 @@ export class StandardDifficultyHitObject extends DifficultyHitObject {
    */
   readonly strainTime: number;
 
+  /** Delta time capped at 25ms for the July 2026 skill calculations. */
+  readonly adjustedDeltaTime: number;
+
+  /** Time since the previous difficulty object's end, capped at 25ms. */
+  readonly lastObjectEndDeltaTime: number;
+
+  /** Clock rate adjusted approach time. */
+  readonly preempt: number;
+
+  /** Normalized start-to-start distance from the previous hit object. */
+  jumpDistance = 0;
+
+  /** Direction of the current movement, folded across both axes. */
+  normalisedVectorAngle: number | null = null;
+
+  get smallCircleBonus(): number {
+    return Math.max(1, 1 + (30 - this.baseObject.radius) / 70);
+  }
+
+  get overallDifficulty(): number {
+    return (79.5 - this.hitWindowGreat / 2) / 6;
+  }
+
   /**
    * Normalized distance from the end position of the previous 
    * {@link StandardDifficultyHitObject} to the start position of this {@link StandardDifficultyHitObject}.
@@ -81,6 +104,15 @@ export class StandardDifficultyHitObject extends DifficultyHitObject {
      * Capped to 25ms to prevent difficulty calculation breaking from simultaneous objects.
      */
     this.strainTime = Math.max(this.deltaTime, StandardDifficultyHitObject.MIN_DELTA_TIME);
+    this.adjustedDeltaTime = this.strainTime;
+
+    const previous = this.previous(0);
+
+    this.lastObjectEndDeltaTime = previous
+      ? Math.max(this.startTime - previous.endTime, StandardDifficultyHitObject.MIN_DELTA_TIME)
+      : this.adjustedDeltaTime;
+
+    this.preempt = this.baseObject.timePreempt / clockRate;
     this.hitWindowGreat = this.baseObject instanceof Slider && this.baseObject.head
       ? 2 * this.baseObject.head.hitWindows.windowFor(HitResult.Great) / clockRate
       : 2 * this.baseObject.hitWindows.windowFor(HitResult.Great) / clockRate;
@@ -95,11 +127,11 @@ export class StandardDifficultyHitObject extends DifficultyHitObject {
     const fadeInDuration = this.baseObject.timeFadeIn;
 
     if (hidden) {
-      const fadeOutStartTime = this.baseObject.startTime
-        - this.baseObject.timePreempt + this.baseObject.timeFadeIn;
+      const fadeOutStartTime = this.baseObject.startTime -
+        this.baseObject.timePreempt + this.baseObject.timeFadeIn;
 
-      const fadeOutDuration = this.baseObject.timePreempt
-        * StandardHidden.FADE_OUT_DURATION_MULTIPLIER;
+      const fadeOutDuration = this.baseObject.timePreempt *
+        StandardHidden.FADE_OUT_DURATION_MULTIPLIER;
 
       return Math.min(
         MathUtils.clamp((time - fadeInStartTime) / fadeInDuration, 0, 1),
@@ -108,6 +140,20 @@ export class StandardDifficultyHitObject extends DifficultyHitObject {
     }
 
     return MathUtils.clamp((time - fadeInStartTime) / fadeInDuration, 0, 1);
+  }
+
+  /** Feasibility of double tapping this object with the next one, from 0 to 1. */
+  calculateDoubleTapFeasibility(next: StandardDifficultyHitObject | null): number {
+    if (next === null) return 0;
+
+    const currentDelta = Math.max(1, this.deltaTime);
+    const nextDelta = Math.max(1, next.deltaTime);
+    const deltaDifference = Math.abs(nextDelta - currentDelta);
+    const speedRatio = currentDelta / Math.max(currentDelta, deltaDifference);
+    const windowRatio = Math.pow(Math.min(1, currentDelta / this.hitWindowGreat), 5);
+    const distanceFactor = Math.pow(MathUtils.clamp((this.lazyJumpDistance - 100) / (50 - 100), 0, 1), 2);
+
+    return 1 - Math.pow(speedRatio, distanceFactor * (1 - windowRatio));
   }
 
   private _setDistances(clockRate: number): void {
@@ -157,8 +203,10 @@ export class StandardDifficultyHitObject extends DifficultyHitObject {
     const lastCursorPosition = this._getEndCursorPosition(lastObj);
 
     const scaledStackPos = baseObj.stackedStartPosition.fscale(scalingFactor);
+    const scaledLastStackPos = lastObj.stackedStartPosition.fscale(scalingFactor);
     const scaledCursorPos = lastCursorPosition.fscale(scalingFactor);
 
+    this.jumpDistance = scaledStackPos.fsubtract(scaledLastStackPos).flength();
     this.lazyJumpDistance = scaledStackPos.fsubtract(scaledCursorPos).flength();
     this.minimumJumpTime = this.strainTime;
     this.minimumJumpDistance = this.lazyJumpDistance;
@@ -196,6 +244,8 @@ export class StandardDifficultyHitObject extends DifficultyHitObject {
 
       const v1 = lastLastCursorPosition.fsubtract(lastObj.stackedStartPosition);
       const v2 = baseObj.stackedStartPosition.fsubtract(lastCursorPosition);
+
+      this.normalisedVectorAngle = Math.atan2(Math.abs(v2.floatY), Math.abs(v2.floatX));
 
       const dot = v1.fdot(v2);
       const det = Math.fround(

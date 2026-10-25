@@ -190,12 +190,8 @@ export class StandardDifficultyHitObject extends DifficultyHitObject {
 
     const lastCursorPosition = this._getEndCursorPosition(lastObj);
 
-    const scaledStackPos = baseObj.stackedStartPosition.fscale(scalingFactor);
-    const scaledLastStackPos = lastObj.stackedStartPosition.fscale(scalingFactor);
-    const scaledCursorPos = lastCursorPosition.fscale(scalingFactor);
-
-    this.jumpDistance = scaledStackPos.fsubtract(scaledLastStackPos).flength();
-    this.lazyJumpDistance = scaledStackPos.fsubtract(scaledCursorPos).flength();
+    this.jumpDistance = Math.fround(baseObj.stackedStartPosition.fsubtract(lastObj.stackedStartPosition).flength() * scalingFactor);
+    this.lazyJumpDistance = Math.fround(baseObj.stackedStartPosition.fsubtract(lastCursorPosition).flength() * scalingFactor);
     this.minimumJumpDistance = this.lazyJumpDistance;
 
     const lastDifficultyObject = this.previous(0) as StandardDifficultyHitObject | null;

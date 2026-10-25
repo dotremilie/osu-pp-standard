@@ -12,6 +12,7 @@ import { JulyRhythmEvaluator } from '../src/Difficulty/Evaluators/JulyRhythmEval
 import { HarmonicSkill } from '../src/Difficulty/Skills/HarmonicSkill';
 import { VariableLengthStrainSkill } from '../src/Difficulty/Skills/VariableLengthStrainSkill';
 import { JulySpeed } from '../src/Difficulty/Skills/JulySpeed';
+import { JulyReading } from '../src/Difficulty/Skills/JulyReading';
 
 function objectAt(startTime: number, value: number): DifficultyHitObject {
   return {
@@ -342,5 +343,57 @@ test('July Speed matches the pinned official difficulty component', () => {
 
     expect(Math.sqrt(speed.difficultyValue) * 0.0675).toBeCloseTo(fixture.difficulty, 5);
     expect(speed.relevantObjectCount()).toBeCloseTo(fixture.count, 5);
+  }
+});
+
+test('July Reading matches the pinned official difficulty component', () => {
+  const cases = [
+    {
+      beatmap: 'diffcalc-test.osu',
+      mods: 'NM',
+      rate: 1,
+      difficulty: 1.7803497292117219,
+    },
+    {
+      beatmap: 'diffcalc-test.osu',
+      mods: 'DT',
+      rate: 1.5,
+      difficulty: 2.1998562282900487,
+    },
+    {
+      beatmap: 'diffcalc-test.osu',
+      mods: 'HD',
+      rate: 1,
+      difficulty: 2.2105684615868535,
+    },
+    {
+      beatmap: '801165.osu',
+      mods: 'NM',
+      rate: 1,
+      difficulty: 1.2807842408799812,
+    },
+  ];
+
+  for (const fixture of cases) {
+    const source = fs.readFileSync(path.resolve(__dirname, `Files/July2026/${fixture.beatmap}`), 'utf8');
+    const parsed = new BeatmapDecoder().decodeFromString(source, false);
+    const mods = new StandardModCombination(fixture.mods);
+    const beatmap = new StandardRuleset().applyToBeatmapWithMods(parsed, mods);
+    const objects: StandardDifficultyHitObject[] = [];
+
+    for (let i = 1; i < beatmap.hitObjects.length; ++i) {
+      objects.push(new StandardDifficultyHitObject(beatmap.hitObjects[i], beatmap.hitObjects[i - 1], fixture.rate, objects, i - 1));
+    }
+
+    const reading = new JulyReading(mods);
+
+    objects.forEach((object) => reading.process(object));
+
+    if (fixture.mods === 'NM' && fixture.beatmap === 'diffcalc-test.osu') {
+      expect(objects[0].preempt).toBe(704);
+      expect(objects[0].baseObject.radius).toBeCloseTo(36.4949531555176, 6);
+    }
+
+    expect(Math.sqrt(reading.difficultyValue) * 0.0675).toBeCloseTo(fixture.difficulty, 5);
   }
 });

@@ -118,7 +118,7 @@ export abstract class StandardHitObject extends HitObject implements IHasPositio
   applyDefaultsToSelf(controlPoints: ControlPointInfo, difficulty: BeatmapDifficultySection): void {
     super.applyDefaultsToSelf(controlPoints, difficulty);
 
-    this.timePreempt = Math.fround(
+    this.timePreempt = Math.trunc(
       BeatmapDifficultySection.range(difficulty.approachRate, 1800, 1200, 450),
     );
 
@@ -130,7 +130,9 @@ export abstract class StandardHitObject extends HitObject implements IHasPositio
      */
     const scale = Math.fround(Math.fround(0.7) * Math.fround(difficulty.circleSize - 5));
 
-    this.scale = Math.fround(Math.fround(1 - Math.fround(scale / 5)) / 2);
+    this.scale = Math.fround(
+      Math.fround(Math.fround(1 - Math.fround(scale / 5)) / 2) * Math.fround(1.00041),
+    );
   }
 
   /**

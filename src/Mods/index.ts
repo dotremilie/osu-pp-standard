@@ -3,6 +3,7 @@ export { StandardAutoplay } from './StandardAutoplay';
 export { StandardBlinds } from './StandardBlinds';
 export { StandardCinema } from './StandardCinema';
 export { StandardClassic } from './StandardClassic';
+export { StandardDaycore } from './StandardDaycore';
 export { StandardDoubleTime } from './StandardDoubleTime';
 export { StandardEasy } from './StandardEasy';
 export { StandardFlashlight } from './StandardFlashlight';

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { DifficultyHitObject, HitResult, Vector2 } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardBlinds, StandardClassic, StandardModCombination, StandardTraceable } from '../src/Mods';
+import { StandardBlinds, StandardClassic, StandardDaycore, StandardModCombination, StandardTraceable } from '../src/Mods';
 import { Circle, Slider, Spinner } from '../src/Objects';
 import { StandardRuleset } from '../src/StandardRuleset';
 import { StandardHitWindows } from '../src/Scoring';
@@ -497,4 +497,15 @@ test('Blinds and Traceable keep their acronym markers when cloned', () => {
     expect(clone.equals(combination)).toBe(true);
     expect(combination.equals(new StandardModCombination('DT'))).toBe(false);
   }
+});
+
+test('Daycore keeps its rate mod when combined with Classic and cloned', () => {
+  const combination = new StandardModCombination('DCCL');
+  const cloned = combination.clone();
+
+  expect(combination.any(StandardDaycore)).toBe(true);
+  expect(cloned.has('DC')).toBe(true);
+  expect(cloned.has('CL')).toBe(true);
+  expect(cloned.equals(combination)).toBe(true);
+  expect(combination.equals(new StandardModCombination('HTCL'))).toBe(false);
 });

@@ -1,6 +1,6 @@
 // July 2026 osu!standard performance adapted from ppy/osu. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { DifficultyAttributes, HitResult, IRuleset, IScoreInfo, PerformanceCalculator } from 'osu-classes';
-import { StandardAutopilot, StandardBlinds, StandardClassic, StandardDoubleTime, StandardEasy, StandardFlashlight, StandardHalfTime, StandardHardRock, StandardHidden, StandardModCombination, StandardNightcore, StandardNoFail, StandardRelax, StandardScoreV2, StandardSpunOut, StandardTraceable } from '../Mods';
+import { StandardAutopilot, StandardBlinds, StandardClassic, StandardDaycore, StandardDoubleTime, StandardEasy, StandardFlashlight, StandardHalfTime, StandardHardRock, StandardHidden, StandardModCombination, StandardNightcore, StandardNoFail, StandardRelax, StandardScoreV2, StandardSpunOut, StandardTraceable } from '../Mods';
 import { StandardHitResult } from '../Scoring';
 import { StandardDifficultyAttributes, StandardPerformanceAttributes } from './Attributes';
 import { reverseLerp, smoothstep } from './Evaluators/AimMath';
@@ -294,7 +294,7 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
 
     if (this._mods.any(StandardNoFail)) multiplier *= 0.5;
     if (this._mods.any(StandardEasy)) multiplier *= 0.5;
-    if (this._mods.any(StandardHalfTime)) multiplier *= 0.3;
+    if (this._mods.any(StandardHalfTime) || this._mods.any(StandardDaycore)) multiplier *= 0.3;
     if (this._mods.any(StandardHidden)) multiplier *= 1.06;
     if (this._mods.any(StandardHardRock)) multiplier *= 1.06;
     if (this._mods.any(StandardDoubleTime) || this._mods.any(StandardNightcore)) multiplier *= 1.12;

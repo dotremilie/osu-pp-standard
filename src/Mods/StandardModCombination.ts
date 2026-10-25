@@ -19,13 +19,14 @@ import { StandardPerfect } from './StandardPerfect';
 import { StandardCinema } from './StandardCinema';
 import { StandardClassic } from './StandardClassic';
 import { StandardBlinds } from './StandardBlinds';
+import { StandardDaycore } from './StandardDaycore';
 import { StandardScoreV2 } from './StandardScoreV2';
 import { StandardTraceable } from './StandardTraceable';
 
 export class StandardModCombination extends ModCombination {
   constructor(input?: number | string) {
     const acronyms: string[] = typeof input === 'string' ? input.toUpperCase().match(/SV2|.{2}/g) ?? [] : [];
-    const knownLegacyAcronyms = ['CL', 'BL', 'TC', 'SV2'];
+    const knownLegacyAcronyms = ['CL', 'BL', 'TC', 'DC', 'SV2'];
     const legacyInput = typeof input === 'string'
       ? acronyms.filter((acronym) => !knownLegacyAcronyms.includes(acronym)).join('') : input;
 
@@ -35,6 +36,7 @@ export class StandardModCombination extends ModCombination {
       ['CL', new StandardClassic()],
       ['BL', new StandardBlinds()],
       ['TC', new StandardTraceable()],
+      ['DC', new StandardDaycore()],
       ['SV2', new StandardScoreV2()],
     ] as [string, IMod][]) {
       if (!acronyms.includes(acronym) || (acronym === 'SV2' && this.any(StandardScoreV2))) continue;
@@ -64,13 +66,15 @@ export class StandardModCombination extends ModCombination {
     return this.bitwise === other.bitwise && this.mode === other.mode &&
       classic?.noSliderHeadAccuracy === otherClassic?.noSliderHeadAccuracy &&
       this.any(StandardBlinds) === (other instanceof StandardModCombination && other.any(StandardBlinds)) &&
-      this.any(StandardTraceable) === (other instanceof StandardModCombination && other.any(StandardTraceable));
+      this.any(StandardTraceable) === (other instanceof StandardModCombination && other.any(StandardTraceable)) &&
+      this.any(StandardDaycore) === (other instanceof StandardModCombination && other.any(StandardDaycore));
   }
 
   has(input: number | string): boolean {
     if (typeof input === 'string' && input.toUpperCase() === 'CL') return this.any(StandardClassic);
     if (typeof input === 'string' && input.toUpperCase() === 'BL') return this.any(StandardBlinds);
     if (typeof input === 'string' && input.toUpperCase() === 'TC') return this.any(StandardTraceable);
+    if (typeof input === 'string' && input.toUpperCase() === 'DC') return this.any(StandardDaycore);
     if (typeof input === 'string' && input.toUpperCase() === 'SV2') return this.any(StandardScoreV2);
 
     return super.has(input);

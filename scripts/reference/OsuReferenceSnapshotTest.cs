@@ -25,6 +25,8 @@ namespace osu.Game.Rulesets.Osu.Tests
             addCase("diffcalc-test", "NM", Array.Empty<Mod>(), false, 0, 0, 5, cases, tailsDropped: 5);
             addCase("diffcalc-test", "NM", Array.Empty<Mod>(), false, 0, 0, 1, cases, tickMisses: 1);
             addCase("diffcalc-test", "DT", new Mod[] { new OsuModDoubleTime() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "HT", new Mod[] { new OsuModHalfTime() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "DC", new Mod[] { new OsuModDaycore() }, false, 0, 0, 0, cases);
             addCase("diffcalc-test", "HD", new Mod[] { new OsuModHidden() }, false, 0, 0, 0, cases);
             addCase("diffcalc-test", "BL", new Mod[] { new OsuModBlinds() }, false, 0, 0, 0, cases);
             addCase("diffcalc-test", "BL", new Mod[] { new OsuModBlinds() }, false, 1, 10, 20, cases);
@@ -39,6 +41,7 @@ namespace osu.Game.Rulesets.Osu.Tests
             addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 0, 0, 0, cases);
             addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 1, 10, 20, cases);
             addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 363000);
+            addCase("diffcalc-test", "DCCL", new Mod[] { new OsuModDaycore(), new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 363000);
             addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 50000);
             addCase("diffcalc-test", "HDCL", new Mod[] { new OsuModHidden(), new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 382000);
             addCase("diffcalc-test", "HRCL", new Mod[] { new OsuModHardRock(), new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 382000);

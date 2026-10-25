@@ -1,6 +1,6 @@
 // July 2026 osu!standard performance adapted from ppy/osu. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { DifficultyAttributes, HitResult, IRuleset, IScoreInfo, PerformanceCalculator } from 'osu-classes';
-import { StandardAutopilot, StandardClassic, StandardDoubleTime, StandardEasy, StandardFlashlight, StandardHalfTime, StandardHardRock, StandardHidden, StandardModCombination, StandardNightcore, StandardNoFail, StandardRelax, StandardSpunOut } from '../Mods';
+import { StandardAutopilot, StandardClassic, StandardDoubleTime, StandardEasy, StandardFlashlight, StandardHalfTime, StandardHardRock, StandardHidden, StandardModCombination, StandardNightcore, StandardNoFail, StandardRelax, StandardScoreV2, StandardSpunOut } from '../Mods';
 import { StandardHitResult } from '../Scoring';
 import { StandardDifficultyAttributes, StandardPerformanceAttributes } from './Attributes';
 import { reverseLerp, smoothstep } from './Evaluators/JulyAimMath';
@@ -40,7 +40,8 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
     const difficulty = this.attributes;
     const comboMisses = this._calculateComboBasedEstimatedMissCount(difficulty);
 
-    const estimatedMisses = this._usingClassicSliderAccuracy && this._legacyTotalScore !== null
+    const estimatedMisses = this._usingClassicSliderAccuracy && !this._mods.any(StandardScoreV2) &&
+      this._legacyTotalScore !== null
       ? this._calculateLegacyScoreEstimatedMissCount(difficulty) : comboMisses;
 
     this._effectiveMissCount = Math.min(this._totalHits, Math.max(this._countMiss, estimatedMisses));
@@ -144,7 +145,7 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
     if (this._mods.any(StandardRelax)) return 0;
 
     const accuracyObjects = attributes.hitCircleCount +
-      (this._usingClassicSliderAccuracy ? 0 : attributes.sliderCount);
+      (this._usingClassicSliderAccuracy && !this._mods.any(StandardScoreV2) ? 0 : attributes.sliderCount);
     const betterAccuracy = accuracyObjects > 0 ? Math.max(0,
       ((this._countGreat - Math.max(this._totalHits - accuracyObjects, 0)) * 6 +
         this._countOk * 2 + this._countMeh) / (accuracyObjects * 6)) : 0;

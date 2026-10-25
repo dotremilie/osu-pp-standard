@@ -296,7 +296,7 @@ const performanceAttributes = performanceCalculator.calculateAttributes();
 const totalPerformance = performanceCalculator.calculate();
 ```
 
-For real scores, pass their actual `Great`, `Ok`, `Meh`, and `Miss` counts, combo, accuracy, and available slider tail and tick results. If slider tail data is absent, the calculator assumes every tail was hit. Use `ruleset.createModCombination('CL')` for Classic slider accuracy. To estimate misses from a stable ScoreV1 total, use `StandardScoreInfo` and set its `legacyTotalScore` property; the calculator uses that value only with Classic slider accuracy. Keep `totalScore` for the ordinary `osu-classes` score field.
+For real scores, pass their actual `Great`, `Ok`, `Meh`, and `Miss` counts, combo, accuracy, and available slider tail and tick results. If slider tail data is absent, the calculator assumes every tail was hit. Use `ruleset.createModCombination('CL')` for Classic slider accuracy, or include `SV2` for a legacy ScoreV2 score. To estimate misses from a stable ScoreV1 total, use `StandardScoreInfo` and set its `legacyTotalScore` property; the calculator uses that value only with Classic slider accuracy and without ScoreV2. Keep `totalScore` for the ordinary `osu-classes` score field. Set `StandardClassic.noSliderHeadAccuracy = false` when a Classic score used that setting.
 
 ## Documentation
 

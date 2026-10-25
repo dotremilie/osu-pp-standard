@@ -18,10 +18,11 @@ import { StandardAutopilot } from './StandardAutopilot';
 import { StandardPerfect } from './StandardPerfect';
 import { StandardCinema } from './StandardCinema';
 import { StandardClassic } from './StandardClassic';
+import { StandardScoreV2 } from './StandardScoreV2';
 
 export class StandardModCombination extends ModCombination {
   constructor(input?: number | string) {
-    super(input);
+    super(typeof input === 'string' ? input.toUpperCase().replace(/SV2/g, '') : input);
 
     if (typeof input === 'string' && input.toUpperCase().match(/.{2}/g)
       ?.includes('CL')) {
@@ -30,19 +31,38 @@ export class StandardModCombination extends ModCombination {
       if (noMod >= 0) this.all.splice(noMod, 1);
       this.all.push(new StandardClassic());
     }
+
+    if (typeof input === 'string' && input.toUpperCase().includes('SV2') &&
+      !this.any(StandardScoreV2)) {
+      const noMod = this.all.findIndex((mod) => mod instanceof StandardNoMod);
+
+      if (noMod >= 0) this.all.splice(noMod, 1);
+      this.all.push(new StandardScoreV2());
+    }
   }
 
   clone(): this {
-    return new StandardModCombination(this.toString()) as this;
+    const cloned = new StandardModCombination(this.toString()) as this;
+    const classic = this.all.find((mod) => mod instanceof StandardClassic) as StandardClassic | undefined;
+    const clonedClassic = cloned.all.find((mod) => mod instanceof StandardClassic) as StandardClassic | undefined;
+
+    if (classic && clonedClassic) clonedClassic.noSliderHeadAccuracy = classic.noSliderHeadAccuracy;
+
+    return cloned;
   }
 
   equals(other: ModCombination): boolean {
+    const classic = this.all.find((mod) => mod instanceof StandardClassic) as StandardClassic | undefined;
+    const otherClassic = other instanceof StandardModCombination
+      ? other.all.find((mod) => mod instanceof StandardClassic) as StandardClassic | undefined : undefined;
+
     return this.bitwise === other.bitwise && this.mode === other.mode &&
-      this.any(StandardClassic) === (other instanceof StandardModCombination && other.any(StandardClassic));
+      classic?.noSliderHeadAccuracy === otherClassic?.noSliderHeadAccuracy;
   }
 
   has(input: number | string): boolean {
     if (typeof input === 'string' && input.toUpperCase() === 'CL') return this.any(StandardClassic);
+    if (typeof input === 'string' && input.toUpperCase() === 'SV2') return this.any(StandardScoreV2);
 
     return super.has(input);
   }
@@ -70,6 +90,7 @@ export class StandardModCombination extends ModCombination {
       new StandardAutopilot(),
       new StandardPerfect(),
       new StandardCinema(),
+      new StandardScoreV2(),
     ];
   }
 }

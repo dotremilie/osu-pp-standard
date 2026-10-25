@@ -463,4 +463,21 @@ test('Classic slider accuracy survives mod combination cloning', () => {
   expect(classic.any(StandardClassic)).toBe(true);
   expect(classic.clone().any(StandardClassic)).toBe(true);
   expect(classic.equals(new StandardModCombination('NM'))).toBe(false);
+
+  const classicMod = classic.all.find((mod) => mod instanceof StandardClassic) as StandardClassic;
+
+  classicMod.noSliderHeadAccuracy = false;
+
+  expect((classic.clone().all.find((mod) => mod instanceof StandardClassic) as StandardClassic)
+    .noSliderHeadAccuracy).toBe(false);
+
+  expect(classic.equals(new StandardModCombination('CL'))).toBe(false);
+});
+
+test('ScoreV2 survives acronym and bitwise mod combination cloning', () => {
+  const scoreV2 = new StandardModCombination('CLSV2');
+
+  expect(scoreV2.has('SV2')).toBe(true);
+  expect(scoreV2.clone().has('SV2')).toBe(true);
+  expect(scoreV2.equals(new StandardModCombination(scoreV2.bitwise))).toBe(false);
 });

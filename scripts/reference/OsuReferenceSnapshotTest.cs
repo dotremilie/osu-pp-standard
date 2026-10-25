@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using osu.Game.Beatmaps;
@@ -37,6 +38,10 @@ namespace osu.Game.Rulesets.Osu.Tests
             addCase("diffcalc-test", "CL", new Mod[] { new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 50000);
             addCase("diffcalc-test", "HDCL", new Mod[] { new OsuModHidden(), new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 382000);
             addCase("diffcalc-test", "HRCL", new Mod[] { new OsuModHardRock(), new OsuModClassic() }, true, 1, 10, 20, cases, legacyTotalScore: 382000);
+            addCase("diffcalc-test", "CLSV2", new Mod[] { new OsuModClassic(), new ModScoreV2() }, true, 1, 10, 20, cases, legacyTotalScore: 363000);
+            var modernClassic = new OsuModClassic();
+            modernClassic.NoSliderHeadAccuracy.Value = false;
+            addCase("diffcalc-test", "CL", new Mod[] { modernClassic }, true, 1, 10, 20, cases, legacyTotalScore: 363000);
             addCase("801165", "NM", Array.Empty<Mod>(), false, 0, 0, 0, cases);
 
             File.WriteAllText(Path.Combine(TestContext.CurrentContext.WorkDirectory, "july-reference.json"),
@@ -74,7 +79,7 @@ namespace osu.Game.Rulesets.Osu.Tests
                 beatmap = name + ".osu",
                 mods = acronym,
                 legacy,
-                score = new { greats, oks, misses, maxCombo = score.MaxCombo, accuracy = score.Accuracy, sliderTailHits = difficulty.SliderCount - tailsDropped, largeTickMisses = tickMisses, legacyTotalScore },
+                score = new { greats, oks, misses, maxCombo = score.MaxCombo, accuracy = score.Accuracy, sliderTailHits = difficulty.SliderCount - tailsDropped, largeTickMisses = tickMisses, legacyTotalScore, noSliderHeadAccuracy = mods.OfType<OsuModClassic>().FirstOrDefault()?.NoSliderHeadAccuracy.Value },
                 difficulty = new
                 {
                     difficulty.StarRating,

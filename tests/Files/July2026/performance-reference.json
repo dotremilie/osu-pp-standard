@@ -11,7 +11,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.524323005451469,
@@ -49,7 +50,8 @@
       "accuracy": 0.9381720430107526,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.524323005451469,
@@ -87,7 +89,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 28,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.524323005451469,
@@ -125,7 +128,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 33,
       "largeTickMisses": 1,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.524323005451469,
@@ -163,7 +167,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 9.46776948779835,
@@ -201,7 +206,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.668296616486053,
@@ -239,7 +245,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.677938861078335,
@@ -277,7 +284,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.9183535448956235,
@@ -315,7 +323,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.981870372803872,
@@ -353,7 +362,8 @@
       "accuracy": 0.9381720430107526,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 5.273952255489085,
@@ -391,7 +401,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 1.881303175455792,
@@ -429,7 +440,8 @@
       "accuracy": 0.9381720430107526,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.524323005451469,
@@ -467,7 +479,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": true
     },
     "difficulty": {
       "StarRating": 6.524323005451469,
@@ -505,7 +518,8 @@
       "accuracy": 0.9381720430107526,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": true
     },
     "difficulty": {
       "StarRating": 6.524323005451469,
@@ -543,7 +557,8 @@
       "accuracy": 0.9381720430107526,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": 363000
+      "legacyTotalScore": 363000,
+      "noSliderHeadAccuracy": true
     },
     "difficulty": {
       "StarRating": 6.524323005451469,
@@ -581,7 +596,8 @@
       "accuracy": 0.9381720430107526,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": 50000
+      "legacyTotalScore": 50000,
+      "noSliderHeadAccuracy": true
     },
     "difficulty": {
       "StarRating": 6.524323005451469,
@@ -619,7 +635,8 @@
       "accuracy": 0.9381720430107526,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": 382000
+      "legacyTotalScore": 382000,
+      "noSliderHeadAccuracy": true
     },
     "difficulty": {
       "StarRating": 6.668296616486053,
@@ -657,7 +674,8 @@
       "accuracy": 0.9381720430107526,
       "sliderTailHits": 33,
       "largeTickMisses": 0,
-      "legacyTotalScore": 382000
+      "legacyTotalScore": 382000,
+      "noSliderHeadAccuracy": true
     },
     "difficulty": {
       "StarRating": 6.981870372803872,
@@ -684,6 +702,84 @@
     }
   },
   {
+    "beatmap": "diffcalc-test.osu",
+    "mods": "CLSV2",
+    "legacy": true,
+    "score": {
+      "greats": 113,
+      "oks": 10,
+      "misses": 1,
+      "maxCombo": 219,
+      "accuracy": 0.9381720430107526,
+      "sliderTailHits": 33,
+      "largeTickMisses": 0,
+      "legacyTotalScore": 363000,
+      "noSliderHeadAccuracy": true
+    },
+    "difficulty": {
+      "StarRating": 6.524323005451469,
+      "MaxCombo": 239,
+      "AimDifficulty": 3.809399008867019,
+      "SpeedDifficulty": 1.564710574509105,
+      "ReadingDifficulty": 1.7803497292117219,
+      "FlashlightDifficulty": 0.0,
+      "SpeedNoteCount": 35.00731556214938,
+      "SliderFactor": 0.9988227250155558,
+      "NestedScorePerObject": 172.90322580645162,
+      "LegacyScoreBaseMultiplier": 3.0,
+      "MaximumLegacyComboScore": 389808.0
+    },
+    "performance": {
+      "Total": 214.9374381013779,
+      "Aim": 173.0587957845794,
+      "Speed": 6.397153788319556,
+      "Accuracy": 5.054017260200146,
+      "Reading": 16.097297616500388,
+      "Flashlight": 0.0,
+      "EffectiveMissCount": 1.0670319606829142,
+      "SpeedDeviation": 38.21995662477343
+    }
+  },
+  {
+    "beatmap": "diffcalc-test.osu",
+    "mods": "CL",
+    "legacy": true,
+    "score": {
+      "greats": 113,
+      "oks": 10,
+      "misses": 1,
+      "maxCombo": 219,
+      "accuracy": 0.9381720430107526,
+      "sliderTailHits": 33,
+      "largeTickMisses": 0,
+      "legacyTotalScore": 363000,
+      "noSliderHeadAccuracy": false
+    },
+    "difficulty": {
+      "StarRating": 6.524323005451469,
+      "MaxCombo": 239,
+      "AimDifficulty": 3.809399008867019,
+      "SpeedDifficulty": 1.564710574509105,
+      "ReadingDifficulty": 1.7803497292117219,
+      "FlashlightDifficulty": 0.0,
+      "SpeedNoteCount": 35.00731556214938,
+      "SliderFactor": 0.9988227250155558,
+      "NestedScorePerObject": 172.90322580645162,
+      "LegacyScoreBaseMultiplier": 3.0,
+      "MaximumLegacyComboScore": 389808.0
+    },
+    "performance": {
+      "Total": 216.59768212701906,
+      "Aim": 174.47810601422643,
+      "Speed": 6.4267322169891425,
+      "Accuracy": 5.054017260200146,
+      "Reading": 16.169787096319705,
+      "Flashlight": 0.0,
+      "EffectiveMissCount": 1.0,
+      "SpeedDeviation": 38.21995662477343
+    }
+  },
+  {
     "beatmap": "801165.osu",
     "mods": "NM",
     "legacy": false,
@@ -695,7 +791,8 @@
       "accuracy": 1.0,
       "sliderTailHits": 674,
       "largeTickMisses": 0,
-      "legacyTotalScore": null
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
     },
     "difficulty": {
       "StarRating": 6.305978712257886,

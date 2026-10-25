@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HitResult } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardHitResult, StandardRuleset, StandardScoreInfo } from '../lib/index.mjs';
+import { StandardClassic, StandardHitResult, StandardRuleset, StandardScoreInfo } from '../lib/index.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const fixtureDirectory = path.join(root, 'tests', 'Files', 'July2026');
@@ -45,6 +45,11 @@ for (const fixture of performanceReference) {
   const beatmapPath = path.join(fixtureDirectory, fixture.beatmap);
   const parsed = decoder.decodeFromString(fs.readFileSync(beatmapPath, 'utf8'), false);
   const mods = ruleset.createModCombination(fixture.mods);
+  const classic = mods.all.find((mod) => mod instanceof StandardClassic);
+
+  if (classic && fixture.score.noSliderHeadAccuracy != null) {
+    classic.noSliderHeadAccuracy = fixture.score.noSliderHeadAccuracy;
+  }
   const beatmap = ruleset.applyToBeatmapWithMods(parsed, mods);
   const difficulty = ruleset.createDifficultyCalculator(beatmap).calculate();
   const scoreDetails = [];

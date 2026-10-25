@@ -14,6 +14,7 @@ export { StandardNoFail } from './StandardNoFail';
 export { StandardNoMod } from './StandardNoMod';
 export { StandardPerfect } from './StandardPerfect';
 export { StandardRelax } from './StandardRelax';
+export { StandardScoreV2 } from './StandardScoreV2';
 export { StandardSpunOut } from './StandardSpunOut';
 export { StandardSuddenDeath } from './StandardSuddenDeath';
 export { StandardTouchDevice } from './StandardTouchDevice';

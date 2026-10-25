@@ -26,6 +26,10 @@ namespace osu.Game.Rulesets.Osu.Tests
             addCase("diffcalc-test", "NM", Array.Empty<Mod>(), false, 0, 0, 1, cases, tickMisses: 1);
             addCase("diffcalc-test", "DT", new Mod[] { new OsuModDoubleTime() }, false, 0, 0, 0, cases);
             addCase("diffcalc-test", "HD", new Mod[] { new OsuModHidden() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "BL", new Mod[] { new OsuModBlinds() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "BL", new Mod[] { new OsuModBlinds() }, false, 1, 10, 20, cases);
+            addCase("diffcalc-test", "TC", new Mod[] { new OsuModTraceable() }, false, 0, 0, 0, cases);
+            addCase("diffcalc-test", "TC", new Mod[] { new OsuModTraceable() }, false, 1, 10, 20, cases);
             addCase("diffcalc-test", "FL", new Mod[] { new OsuModFlashlight() }, false, 0, 0, 0, cases);
             addCase("diffcalc-test", "HDFL", new Mod[] { new OsuModHidden(), new OsuModFlashlight() }, false, 0, 0, 0, cases);
             addCase("diffcalc-test", "HR", new Mod[] { new OsuModHardRock() }, false, 0, 0, 0, cases);

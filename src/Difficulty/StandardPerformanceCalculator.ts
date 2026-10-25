@@ -1,6 +1,6 @@
 // July 2026 osu!standard performance adapted from ppy/osu. Copyright (c) ppy Pty Ltd, MIT; see LICENCE.ppy.
 import { DifficultyAttributes, HitResult, IRuleset, IScoreInfo, PerformanceCalculator } from 'osu-classes';
-import { StandardAutopilot, StandardClassic, StandardDoubleTime, StandardEasy, StandardFlashlight, StandardHalfTime, StandardHardRock, StandardHidden, StandardModCombination, StandardNightcore, StandardNoFail, StandardRelax, StandardScoreV2, StandardSpunOut } from '../Mods';
+import { StandardAutopilot, StandardBlinds, StandardClassic, StandardDoubleTime, StandardEasy, StandardFlashlight, StandardHalfTime, StandardHardRock, StandardHidden, StandardModCombination, StandardNightcore, StandardNoFail, StandardRelax, StandardScoreV2, StandardSpunOut, StandardTraceable } from '../Mods';
 import { StandardHitResult } from '../Scoring';
 import { StandardDifficultyAttributes, StandardPerformanceAttributes } from './Attributes';
 import { reverseLerp, smoothstep } from './Evaluators/AimMath';
@@ -118,6 +118,14 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
       value *= this._missPenalty(relevantMisses, attributes.aimDifficultStrainCount);
     }
 
+    if (this._mods.any(StandardBlinds)) {
+      value *= 1.3 + (this._totalHits * (0.0016 / (1 + 2 * this._effectiveMissCount)) *
+        Math.pow(this._accuracy, 16)) * (1 - 0.003 * attributes.drainRate * attributes.drainRate);
+    }
+    else if (this._mods.any(StandardTraceable)) {
+      value *= 1 + this._calculateTraceableBonus(attributes);
+    }
+
     return value * this._accuracy;
   }
 
@@ -132,6 +140,8 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
 
       value *= this._missPenalty(relevantMisses, attributes.speedDifficultStrainCount);
     }
+
+    if (this._mods.any(StandardBlinds)) value *= 1.12;
 
     value *= this._speedHighDeviationNerf(attributes);
 
@@ -155,6 +165,11 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
 
     value *= accuracyObjects < 1000 ? Math.pow(accuracyObjects / 1000, 0.3)
       : Math.pow(accuracyObjects / 1000, 0.1);
+
+    if (this._mods.any(StandardBlinds)) value *= 1.14;
+    else if (this._mods.any(StandardTraceable)) {
+      value *= 1 + 0.08 * reverseLerp(attributes.approachRate, 11.5, 10);
+    }
 
     return value;
   }
@@ -366,6 +381,19 @@ export class StandardPerformanceCalculator extends PerformanceCalculator {
 
   private _missPenalty(missCount: number, difficultStrainCount: number): number {
     return 0.93 / (missCount / (4 * Math.log(Math.max(1, difficultStrainCount))) + 1);
+  }
+
+  private _calculateTraceableBonus(attributes: StandardDifficultyAttributes): number {
+    const sliderVisibility = Math.pow(attributes.sliderFactor, 6);
+    const highApproachRateSliderVisibility = 0.5 + sliderVisibility / 2;
+    const approachRate = attributes.approachRate;
+    let bonus = 0.0275 + 0.025 * (12 - Math.max(approachRate, 7)) *
+      highApproachRateSliderVisibility;
+
+    if (approachRate < 7) bonus += 0.025 * (7 - Math.max(approachRate, 0)) * sliderVisibility;
+    if (approachRate < 0) bonus += 0.025 * (1 - Math.pow(1.5, approachRate)) * sliderVisibility;
+
+    return bonus;
   }
 
   private _comboScalingFactor(attributes: StandardDifficultyAttributes): number {

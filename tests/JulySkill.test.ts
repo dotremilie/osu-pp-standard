@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { DifficultyHitObject, HitResult, Vector2 } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardClassic, StandardModCombination } from '../src/Mods';
+import { StandardBlinds, StandardClassic, StandardModCombination, StandardTraceable } from '../src/Mods';
 import { Circle, Slider, Spinner } from '../src/Objects';
 import { StandardRuleset } from '../src/StandardRuleset';
 import { StandardHitWindows } from '../src/Scoring';
@@ -480,4 +480,21 @@ test('ScoreV2 survives acronym and bitwise mod combination cloning', () => {
   expect(scoreV2.has('SV2')).toBe(true);
   expect(scoreV2.clone().has('SV2')).toBe(true);
   expect(scoreV2.equals(new StandardModCombination(scoreV2.bitwise))).toBe(false);
+});
+
+test('Blinds and Traceable keep their acronym markers when cloned', () => {
+  for (const [acronym, Mod] of [
+    ['BL', StandardBlinds],
+    ['TC', StandardTraceable],
+  ] as const) {
+    const combination = new StandardModCombination(`DT${acronym}`);
+    const clone = combination.clone();
+
+    expect(combination.has(acronym)).toBe(true);
+    expect(combination.any(Mod)).toBe(true);
+    expect(clone.has('DT')).toBe(true);
+    expect(clone.has(acronym)).toBe(true);
+    expect(clone.equals(combination)).toBe(true);
+    expect(combination.equals(new StandardModCombination('DT'))).toBe(false);
+  }
 });

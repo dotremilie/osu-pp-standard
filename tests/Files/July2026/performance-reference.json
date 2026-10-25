@@ -235,6 +235,162 @@
   },
   {
     "beatmap": "diffcalc-test.osu",
+    "mods": "BL",
+    "legacy": false,
+    "score": {
+      "greats": 124,
+      "oks": 0,
+      "misses": 0,
+      "maxCombo": 239,
+      "accuracy": 1.0,
+      "sliderTailHits": 33,
+      "largeTickMisses": 0,
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
+    },
+    "difficulty": {
+      "StarRating": 6.524323005451469,
+      "MaxCombo": 239,
+      "AimDifficulty": 3.809399008867019,
+      "SpeedDifficulty": 1.564710574509105,
+      "ReadingDifficulty": 1.7803497292117219,
+      "FlashlightDifficulty": 0.0,
+      "SpeedNoteCount": 35.00731556214938,
+      "SliderFactor": 0.9988227250155558,
+      "NestedScorePerObject": 172.90322580645162,
+      "LegacyScoreBaseMultiplier": 3.0,
+      "MaximumLegacyComboScore": 389808.0
+    },
+    "performance": {
+      "Total": 410.31449461155654,
+      "Aim": 318.753522692717,
+      "Speed": 14.117419031890991,
+      "Accuracy": 31.595128669342525,
+      "Reading": 22.572307597136877,
+      "Flashlight": 0.0,
+      "EffectiveMissCount": 0.0,
+      "SpeedDeviation": 23.389240815832192
+    }
+  },
+  {
+    "beatmap": "diffcalc-test.osu",
+    "mods": "BL",
+    "legacy": false,
+    "score": {
+      "greats": 113,
+      "oks": 10,
+      "misses": 1,
+      "maxCombo": 219,
+      "accuracy": 0.9381720430107526,
+      "sliderTailHits": 33,
+      "largeTickMisses": 0,
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
+    },
+    "difficulty": {
+      "StarRating": 6.524323005451469,
+      "MaxCombo": 239,
+      "AimDifficulty": 3.809399008867019,
+      "SpeedDifficulty": 1.564710574509105,
+      "ReadingDifficulty": 1.7803497292117219,
+      "FlashlightDifficulty": 0.0,
+      "SpeedNoteCount": 35.00731556214938,
+      "SliderFactor": 0.9988227250155558,
+      "NestedScorePerObject": 172.90322580645162,
+      "LegacyScoreBaseMultiplier": 3.0,
+      "MaximumLegacyComboScore": 389808.0
+    },
+    "performance": {
+      "Total": 280.1152734082048,
+      "Aim": 230.66588743963848,
+      "Speed": 7.197940083027841,
+      "Accuracy": 5.761579676628166,
+      "Reading": 16.169787096319705,
+      "Flashlight": 0.0,
+      "EffectiveMissCount": 1.0,
+      "SpeedDeviation": 38.21995662477343
+    }
+  },
+  {
+    "beatmap": "diffcalc-test.osu",
+    "mods": "TC",
+    "legacy": false,
+    "score": {
+      "greats": 124,
+      "oks": 0,
+      "misses": 0,
+      "maxCombo": 239,
+      "accuracy": 1.0,
+      "sliderTailHits": 33,
+      "largeTickMisses": 0,
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
+    },
+    "difficulty": {
+      "StarRating": 6.524323005451469,
+      "MaxCombo": 239,
+      "AimDifficulty": 3.809399008867019,
+      "SpeedDifficulty": 1.564710574509105,
+      "ReadingDifficulty": 1.7803497292117219,
+      "FlashlightDifficulty": 0.0,
+      "SpeedNoteCount": 35.00731556214938,
+      "SliderFactor": 0.9988227250155558,
+      "NestedScorePerObject": 172.90322580645162,
+      "LegacyScoreBaseMultiplier": 3.0,
+      "MaximumLegacyComboScore": 389808.0
+    },
+    "performance": {
+      "Total": 321.4104454646092,
+      "Aim": 240.57654437192218,
+      "Speed": 12.604838421331243,
+      "Accuracy": 29.932227160429765,
+      "Reading": 22.572307597136877,
+      "Flashlight": 0.0,
+      "EffectiveMissCount": 0.0,
+      "SpeedDeviation": 23.389240815832192
+    }
+  },
+  {
+    "beatmap": "diffcalc-test.osu",
+    "mods": "TC",
+    "legacy": false,
+    "score": {
+      "greats": 113,
+      "oks": 10,
+      "misses": 1,
+      "maxCombo": 219,
+      "accuracy": 0.9381720430107526,
+      "sliderTailHits": 33,
+      "largeTickMisses": 0,
+      "legacyTotalScore": null,
+      "noSliderHeadAccuracy": null
+    },
+    "difficulty": {
+      "StarRating": 6.524323005451469,
+      "MaxCombo": 239,
+      "AimDifficulty": 3.809399008867019,
+      "SpeedDifficulty": 1.564710574509105,
+      "ReadingDifficulty": 1.7803497292117219,
+      "FlashlightDifficulty": 0.0,
+      "SpeedNoteCount": 35.00731556214938,
+      "SliderFactor": 0.9988227250155558,
+      "NestedScorePerObject": 172.90322580645162,
+      "LegacyScoreBaseMultiplier": 3.0,
+      "MaximumLegacyComboScore": 389808.0
+    },
+    "performance": {
+      "Total": 240.07074387286735,
+      "Aim": 195.35864449126507,
+      "Speed": 6.4267322169891425,
+      "Accuracy": 5.458338641016158,
+      "Reading": 16.169787096319705,
+      "Flashlight": 0.0,
+      "EffectiveMissCount": 1.0,
+      "SpeedDeviation": 38.21995662477343
+    }
+  },
+  {
+    "beatmap": "diffcalc-test.osu",
     "mods": "FL",
     "legacy": false,
     "score": {

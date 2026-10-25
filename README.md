@@ -2,7 +2,7 @@
 
 TypeScript fork of [kionell/osu-standard-stable](https://github.com/kionell/osu-standard-stable) for osu!standard difficulty and performance calculation.
 
-**Port status:** The active osu!standard Aim, Speed, Reading, Flashlight, rating, and PP calculations follow the pinned July 2026 rework. The reference gate matches all 29 included difficulty and score fixtures, including Classic ScoreV1 and ScoreV2 cases and slider tail and tick drops. More beatmaps and mod combinations still need validation. See [the reference comparison](docs/REFERENCE_20260706.md) for the pinned version and validation scope.
+**Port status:** The active osu!standard Aim, Speed, Reading, Flashlight, rating, and PP calculations follow the pinned July 2026 rework. The reference gate matches all 33 included difficulty and score fixtures, including Classic ScoreV1 and ScoreV2, Blinds, Traceable, and slider tail and tick drops. More beatmaps and mod combinations still need validation. See [the reference comparison](docs/REFERENCE_20260706.md) for the pinned version and validation scope.
 
 - Supports TypeScript.
 - Based on the osu!lazer source code.
@@ -296,7 +296,7 @@ const performanceAttributes = performanceCalculator.calculateAttributes();
 const totalPerformance = performanceCalculator.calculate();
 ```
 
-For real scores, pass their actual `Great`, `Ok`, `Meh`, and `Miss` counts, combo, accuracy, and available slider tail and tick results. If slider tail data is absent, the calculator assumes every tail was hit. Use `ruleset.createModCombination('CL')` for Classic slider accuracy, or include `SV2` for a legacy ScoreV2 score. To estimate misses from a stable ScoreV1 total, use `StandardScoreInfo` and set its `legacyTotalScore` property; the calculator uses that value only with Classic slider accuracy and without ScoreV2. Keep `totalScore` for the ordinary `osu-classes` score field. Set `StandardClassic.noSliderHeadAccuracy = false` when a Classic score used that setting.
+For real scores, pass their actual `Great`, `Ok`, `Meh`, and `Miss` counts, combo, accuracy, and available slider tail and tick results. If slider tail data is absent, the calculator assumes every tail was hit. Use `ruleset.createModCombination('CL')` for Classic slider accuracy, or include `SV2` for a legacy ScoreV2 score. `BL` and `TC` apply the official Blinds and Traceable PP bonuses; preserve these acronyms when serializing mod combinations because `osu-classes` 3.1 has no bitwise values for them. To estimate misses from a stable ScoreV1 total, use `StandardScoreInfo` and set its `legacyTotalScore` property; the calculator uses that value only with Classic slider accuracy and without ScoreV2. Keep `totalScore` for the ordinary `osu-classes` score field. Set `StandardClassic.noSliderHeadAccuracy = false` when a Classic score used that setting.
 
 ## Documentation
 

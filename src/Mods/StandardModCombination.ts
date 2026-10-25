@@ -18,26 +18,31 @@ import { StandardAutopilot } from './StandardAutopilot';
 import { StandardPerfect } from './StandardPerfect';
 import { StandardCinema } from './StandardCinema';
 import { StandardClassic } from './StandardClassic';
+import { StandardBlinds } from './StandardBlinds';
 import { StandardScoreV2 } from './StandardScoreV2';
+import { StandardTraceable } from './StandardTraceable';
 
 export class StandardModCombination extends ModCombination {
   constructor(input?: number | string) {
-    super(typeof input === 'string' ? input.toUpperCase().replace(/SV2/g, '') : input);
+    const acronyms: string[] = typeof input === 'string' ? input.toUpperCase().match(/SV2|.{2}/g) ?? [] : [];
+    const knownLegacyAcronyms = ['CL', 'BL', 'TC', 'SV2'];
+    const legacyInput = typeof input === 'string'
+      ? acronyms.filter((acronym) => !knownLegacyAcronyms.includes(acronym)).join('') : input;
 
-    if (typeof input === 'string' && input.toUpperCase().match(/.{2}/g)
-      ?.includes('CL')) {
+    super(legacyInput);
+
+    for (const [acronym, mod] of [
+      ['CL', new StandardClassic()],
+      ['BL', new StandardBlinds()],
+      ['TC', new StandardTraceable()],
+      ['SV2', new StandardScoreV2()],
+    ] as [string, IMod][]) {
+      if (!acronyms.includes(acronym) || (acronym === 'SV2' && this.any(StandardScoreV2))) continue;
+
       const noMod = this.all.findIndex((mod) => mod instanceof StandardNoMod);
 
       if (noMod >= 0) this.all.splice(noMod, 1);
-      this.all.push(new StandardClassic());
-    }
-
-    if (typeof input === 'string' && input.toUpperCase().includes('SV2') &&
-      !this.any(StandardScoreV2)) {
-      const noMod = this.all.findIndex((mod) => mod instanceof StandardNoMod);
-
-      if (noMod >= 0) this.all.splice(noMod, 1);
-      this.all.push(new StandardScoreV2());
+      this.all.push(mod);
     }
   }
 
@@ -57,11 +62,15 @@ export class StandardModCombination extends ModCombination {
       ? other.all.find((mod) => mod instanceof StandardClassic) as StandardClassic | undefined : undefined;
 
     return this.bitwise === other.bitwise && this.mode === other.mode &&
-      classic?.noSliderHeadAccuracy === otherClassic?.noSliderHeadAccuracy;
+      classic?.noSliderHeadAccuracy === otherClassic?.noSliderHeadAccuracy &&
+      this.any(StandardBlinds) === (other instanceof StandardModCombination && other.any(StandardBlinds)) &&
+      this.any(StandardTraceable) === (other instanceof StandardModCombination && other.any(StandardTraceable));
   }
 
   has(input: number | string): boolean {
     if (typeof input === 'string' && input.toUpperCase() === 'CL') return this.any(StandardClassic);
+    if (typeof input === 'string' && input.toUpperCase() === 'BL') return this.any(StandardBlinds);
+    if (typeof input === 'string' && input.toUpperCase() === 'TC') return this.any(StandardTraceable);
     if (typeof input === 'string' && input.toUpperCase() === 'SV2') return this.any(StandardScoreV2);
 
     return super.has(input);

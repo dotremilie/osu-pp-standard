@@ -1,5 +1,6 @@
 export { StandardAutopilot } from './StandardAutopilot';
 export { StandardAutoplay } from './StandardAutoplay';
+export { StandardBlinds } from './StandardBlinds';
 export { StandardCinema } from './StandardCinema';
 export { StandardClassic } from './StandardClassic';
 export { StandardDoubleTime } from './StandardDoubleTime';
@@ -18,3 +19,4 @@ export { StandardScoreV2 } from './StandardScoreV2';
 export { StandardSpunOut } from './StandardSpunOut';
 export { StandardSuddenDeath } from './StandardSuddenDeath';
 export { StandardTouchDevice } from './StandardTouchDevice';
+export { StandardTraceable } from './StandardTraceable';

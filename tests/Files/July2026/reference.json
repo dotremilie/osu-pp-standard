@@ -1,0 +1,17 @@
+{
+  "sourceRepository": "ppy/osu",
+  "sourceCommit": "1164870d12bd5b9714bbffa97e809bee33458799",
+  "sourceTag": "2026.711.0-lazer",
+  "difficultyVersion": 20260706,
+  "sourceTest": "osu.Game.Rulesets.Osu.Tests/OsuDifficultyCalculatorTest.cs",
+  "cases": [
+    { "beatmap": "diffcalc-test.osu", "mods": "NM", "starRating": 6.5243170265483581, "maxCombo": 239 },
+    { "beatmap": "diffcalc-test.osu", "mods": "DT", "starRating": 9.4677607900646308, "maxCombo": 239 },
+    { "beatmap": "zero-length-sliders.osu", "mods": "NM", "starRating": 1.3280410795791415, "maxCombo": 54 },
+    { "beatmap": "zero-length-sliders.osu", "mods": "DT", "starRating": 1.6856612715618886, "maxCombo": 54 },
+    { "beatmap": "very-fast-slider.osu", "mods": "NM", "starRating": 0.40867325147697559, "maxCombo": 4 },
+    { "beatmap": "very-fast-slider.osu", "mods": "DT", "starRating": 0.53588473186572561, "maxCombo": 4 },
+    { "beatmap": "nan-slider.osu", "mods": "NM", "starRating": 0.87058175794353554, "maxCombo": 6 },
+    { "beatmap": "801165.osu", "mods": "NM", "starRating": 6.3059767387139756, "maxCombo": 2359 }
+  ]
+}

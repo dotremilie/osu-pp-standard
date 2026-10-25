@@ -1,7 +1,7 @@
 {
-  "name": "osu-standard-stable",
-  "version": "5.0.1",
-  "description": "osu!stable version of osu!standard ruleset based on osu!lazer source code.",
+  "name": "osu-pp-standard",
+  "version": "0.1.0",
+  "description": "TypeScript osu!standard difficulty and performance calculator.",
   "exports": {
     "import": {
       "default": "./lib/index.mjs",
@@ -17,6 +17,7 @@
     "dev": "rollup -c -w",
     "build": "rollup -c && npm run format",
     "test": "jest --verbose",
+    "compare:reference": "npm run build && node scripts/compare-reference.mjs",
     "fix": "eslint --fix ./src",
     "format": "eslint --fix ./lib/** --no-ignore",
     "prepublishOnly": "npm run build && npm run test",
@@ -29,10 +30,6 @@
     "osu!std"
   ],
   "author": "Kionell",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kionell/osu-standard-stable"
-  },
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.3",
@@ -52,6 +49,7 @@
     "rollup-plugin-node-externals": "^8.0.0",
     "ts-jest": "^29.3.1",
     "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
     "typedoc": "^0.28.1",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.29.0"

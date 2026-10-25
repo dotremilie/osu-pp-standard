@@ -3,6 +3,8 @@
 !/docs/**
 !/src
 !/src/**
+!/scripts
+!/scripts/**
 !/tests
 !/tests/**
 !.gitignore

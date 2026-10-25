@@ -6,8 +6,8 @@ import { ITestAttributes, IModdedAttributes } from './Attributes';
 import {
   StandardRuleset,
   StandardDifficultyAttributes,
+  StandardPerformanceAttributes,
   StandardBeatmap,
-  StandardHardRock,
 } from '../src';
 
 const ruleset = new StandardRuleset();
@@ -21,11 +21,9 @@ function testRuleset(rulesetName: string): void {
   testBeatmaps(rulesetPath);
 }
 
-async function testBeatmaps(rulesetPath: string): Promise<void> {
+function testBeatmaps(rulesetPath: string): void {
   const beatmapsPath = path.resolve(rulesetPath, './Beatmaps');
   const beatmapFiles = fs.readdirSync(beatmapsPath);
-  const modHardRock = new StandardHardRock();
-
   for (const beatmapFile of beatmapFiles) {
     const beatmapPath = path.resolve(beatmapsPath, beatmapFile);
     const beatmapId = beatmapFile.split('.')[0];
@@ -34,35 +32,26 @@ async function testBeatmaps(rulesetPath: string): Promise<void> {
     const attributesData = fs.readFileSync(attributesPath).toString();
     const attributes: IModdedAttributes = JSON.parse(attributesData);
 
-    const decoded = await decoder.decodeFromPath(beatmapPath, false);
-
     for (const acronym in attributes) {
-      const mods = ruleset.createModCombination(acronym);
-      const beatmap = ruleset.applyToBeatmapWithMods(decoded, mods);
-
-      testBeatmap(beatmap, attributes[acronym]);
-
-      // Unflip hit objects if they were flipped by applying HR.
-      if (mods.any(StandardHardRock)) {
-        modHardRock.applyToHitObjects(beatmap.hitObjects);
-      }
+      testBeatmap(beatmapPath, acronym, attributes[acronym]);
     }
   }
 }
 
-function testBeatmap(beatmap: StandardBeatmap, data: ITestAttributes): void {
-  const acronyms = beatmap.mods.toString();
+function testBeatmap(beatmapPath: string, acronym: string, data: ITestAttributes): void {
+  describe(`${path.basename(beatmapPath)} +${acronym}`, () => {
+    let difficulty: StandardDifficultyAttributes;
+    let performance: StandardPerformanceAttributes;
 
-  const difficultyCalculator = ruleset.createDifficultyCalculator(beatmap);
-  const difficulty = difficultyCalculator.calculate();
+    beforeAll(() => {
+      const decoded = decoder.decodeFromString(fs.readFileSync(beatmapPath, 'utf8'), false);
+      const mods = ruleset.createModCombination(acronym);
+      const beatmap = ruleset.applyToBeatmapWithMods(decoded, mods);
+      difficulty = ruleset.createDifficultyCalculator(beatmap).calculate();
+      const score = simulateScore(beatmap, difficulty);
+      performance = ruleset.createPerformanceCalculator(difficulty, score).calculateAttributes();
+    });
 
-  const score = simulateScore(beatmap, difficulty);
-  const performanceCalculator = ruleset.createPerformanceCalculator(difficulty, score);
-  const performance = performanceCalculator.calculateAttributes();
-
-  const { artist, title, version } = beatmap.metadata;
-
-  describe(`${artist} - ${title} [${version}] +${acronyms}`, () => {
     it('Should match beatmap max combo', () => {
       expect(difficulty.maxCombo).toEqual(data.maxCombo);
     });

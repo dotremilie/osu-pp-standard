@@ -1,33 +1,28 @@
-# osu-standard-stable
-[![CodeFactor](https://img.shields.io/codefactor/grade/github/kionell/osu-standard-stable)](https://www.codefactor.io/repository/github/kionell/osu-standard-stable)
-[![License](https://img.shields.io/github/license/kionell/osu-standard-stable)](https://github.com/kionell/osu-standard-stable/blob/master/LICENSE)
-[![Package](https://img.shields.io/npm/v/osu-standard-stable)](https://www.npmjs.com/package/osu-standard-stable)
+# osu-pp-standard
 
+TypeScript fork of [kionell/osu-standard-stable](https://github.com/kionell/osu-standard-stable) for osu!standard difficulty and performance calculation.
 
-JavaScript port of the current live version of the osu!standard ruleset.
+**Port status:** The fork currently contains the upstream April 2025 formulas. It does not yet match the official July 2026 rework. See [the reference comparison](docs/REFERENCE_20260706.md) before using its output as current PP. The original upstream API documentation follows below.
 
 - Supports TypeScript.
 - Based on the osu!lazer source code.
-- Supports beatmap conversion from other game modes.
 - Can apply & reset osu!standard mods.
-- Very accurate difficulty & performance calculation (up to 15-16 digits after decimal point)
+- Difficulty and performance calculation (currently using the pre-rework formulas).
 - Works in browsers.
 
 ## Installation
 
-Add a new dependency to your project via npm:
+This fork is not published to npm yet. To work on it locally:
 
 ```bash
-npm install osu-standard-stable
+npm ci
+npm run build
+npm run compare:reference -- --report
 ```
 
 ## Requirements
 
 Before you can start using this ruleset library, you need to install [osu-classes](https://github.com/kionell/osu-classes) package as this ruleset based on it. Also you need to install [osu-parsers](https://github.com/kionell/osu-parsers) or any other compatible beatmap parser that works with [IBeatmap](https://kionell.github.io/osu-classes/interfaces/IBeatmap.html) interface.
-
-## Existing performance calculator library
-
-This ruleset is a part of [osu-pp-calculator](https://github.com/kionell/osu-pp-calculator) package. It's highly recommended to use existing package for performance calculation if you don't want to write a lot of boilerplate code for score simulation and beatmap downloading. 
 
 ## Beatmap conversion
 
@@ -35,7 +30,7 @@ Any beatmap that implements IBeatmap interface can be converted to this ruleset.
 
 ```js
 import { BeatmapDecoder, BeatmapEncoder } from 'osu-parsers';
-import { StandardRuleset } from 'osu-standard-stable';
+import { StandardRuleset } from 'osu-pp-standard';
 
 const decoder = new BeatmapDecoder();
 const encoder = new BeatmapEncoder();
@@ -72,7 +67,7 @@ const stringified = encoder.encodeToString(standardWithMods);
 
 ```js
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardRuleset } from 'osu-standard-stable';
+import { StandardRuleset } from 'osu-pp-standard';
 
 const decoder = new BeatmapDecoder();
 
@@ -120,7 +115,7 @@ const difficultyAttributes = difficultyCalculator.calculateWithMods(mods);
 
 ```js
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardRuleset } from 'osu-standard-stable';
+import { StandardRuleset } from 'osu-pp-standard';
 
 const decoder = new BeatmapDecoder();
 
@@ -166,7 +161,7 @@ Sometimes you may need to calculate difficulty of a beatmap gradually and return
 
 ```js
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardRuleset } from 'osu-standard-stable';
+import { StandardRuleset } from 'osu-pp-standard';
 
 const decoder = new BeatmapDecoder();
 
@@ -204,7 +199,7 @@ This is a special case of gradual difficulty calculation. This is useful when yo
 
 ```js
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardRuleset } from 'osu-standard-stable';
+import { StandardRuleset } from 'osu-pp-standard';
 
 const decoder = new BeatmapDecoder();
 
@@ -248,7 +243,7 @@ Difficulty calculator can be used to calculate all attributes for every difficul
 
 ```js
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardRuleset } from 'osu-standard-stable';
+import { StandardRuleset } from 'osu-pp-standard';
 
 const decoder = new BeatmapDecoder();
 
@@ -276,7 +271,7 @@ for (const attributes of difficultyCalculator.calculateAll()) {
 ```js
 import { ScoreInfo } from 'osu-classes';
 import { BeatmapDecoder } from 'osu-parsers';
-import { StandardRuleset } from 'osu-standard-stable';
+import { StandardRuleset } from 'osu-pp-standard';
 
 const decoder = new BeatmapDecoder();
 
@@ -337,22 +332,10 @@ const totalPerformance = performanceCalculator.calculate();
 }
 ```
 
-## Other projects
-
-All projects below are based on this code.
-
-- [osu-parsers](https://github.com/kionell/osu-parsers.git) - A bundle of parsers for different osu! file formats.
-- [osu-taiko-stable](https://github.com/kionell/osu-taiko-stable.git) - The osu!taiko ruleset based on the osu!lazer source code.
-- [osu-catch-stable](https://github.com/kionell/osu-catch-stable.git) - The osu!catch ruleset based on the osu!lazer source code.
-- [osu-mania-stable](https://github.com/kionell/osu-mania-stable.git) - The osu!mania ruleset based on the osu!lazer source code.
-
 ## Documentation
 
-Auto-generated documentation is available [here](https://kionell.github.io/osu-standard-stable/).
-
-## Contributing
-
-This project is being developed personally by me on pure enthusiasm. If you want to help with development or fix a problem, then feel free to create a new pull request. For major changes, please open an issue first to discuss what you would like to change.
+The [upstream API documentation](https://kionell.github.io/osu-standard-stable/) describes the inherited interfaces. It does not document the July 2026 port yet.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](https://choosealicense.com/licenses/mit/) for details.
+
+This fork retains the upstream MIT license in [LICENSE](LICENSE). The July reference fixtures are from [ppy/osu](https://github.com/ppy/osu); their MIT notice is in [LICENCE.ppy](tests/Files/July2026/LICENCE.ppy).

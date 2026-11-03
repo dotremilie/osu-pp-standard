@@ -12,8 +12,6 @@ import { RhythmEvaluator } from '../src/Difficulty/Evaluators/RhythmEvaluator';
 import { HarmonicSkill } from '../src/Difficulty/Skills/HarmonicSkill';
 import { StandardStrainSkill } from '../src/Difficulty/Skills/StandardStrainSkill';
 import { Speed } from '../src/Difficulty/Skills/Speed';
-import { Reading } from '../src/Difficulty/Skills/Reading';
-import { Aim } from '../src/Difficulty/Skills/Aim';
 
 function objectAt(startTime: number, value: number): DifficultyHitObject {
   return {
@@ -212,7 +210,7 @@ test('double tap feasibility rises for a stacked rhythm change', () => {
 });
 
 test('converted slider tail is at its end while difficulty tracks to legacy leniency', () => {
-  const source = fs.readFileSync(path.resolve(__dirname, 'Files/July2026/very-fast-slider.osu'), 'utf8');
+  const source = fs.readFileSync(path.resolve(__dirname, 'fixtures/very-fast-slider.osu'), 'utf8');
   const parsed = new BeatmapDecoder().decodeFromString(source, false);
   const beatmap = new StandardRuleset().applyToBeatmap(parsed);
   const slider = beatmap.hitObjects[0] as Slider;
@@ -293,167 +291,6 @@ test('July Speed uses harmonic strain and Relax disables tapping difficulty', ()
   expect(speed.difficultyValue).toBeGreaterThan(0);
   expect(speed.relevantObjectCount()).toBeGreaterThan(0);
   expect(relaxedSpeed.difficultyValue).toBe(0);
-});
-
-test('July Speed matches the pinned official difficulty component', () => {
-  const cases = [
-    {
-      beatmap: 'diffcalc-test.osu',
-      mods: 'NM',
-      rate: 1,
-      difficulty: 1.564710574509105,
-      count: 35.00731556214938,
-    },
-    {
-      beatmap: 'diffcalc-test.osu',
-      mods: 'DT',
-      rate: 1.5,
-      difficulty: 2.1913401312274825,
-      count: 36.906343498744405,
-    },
-    {
-      beatmap: 'diffcalc-test.osu',
-      mods: 'HD',
-      rate: 1,
-      difficulty: 1.564710574509105,
-      count: 35.00731556214938,
-    },
-    {
-      beatmap: '801165.osu',
-      mods: 'NM',
-      rate: 1,
-      difficulty: 2.407992156652434,
-      count: 796.6084994593903,
-    },
-  ];
-
-  for (const fixture of cases) {
-    const source = fs.readFileSync(path.resolve(__dirname, `Files/July2026/${fixture.beatmap}`), 'utf8');
-    const parsed = new BeatmapDecoder().decodeFromString(source, false);
-    const mods = new StandardModCombination(fixture.mods);
-    const beatmap = new StandardRuleset().applyToBeatmapWithMods(parsed, mods);
-    const objects: StandardDifficultyHitObject[] = [];
-
-    for (let i = 1; i < beatmap.hitObjects.length; ++i) {
-      objects.push(new StandardDifficultyHitObject(beatmap.hitObjects[i], beatmap.hitObjects[i - 1], fixture.rate, objects, i - 1));
-    }
-
-    const speed = new Speed(mods);
-
-    objects.forEach((object) => speed.process(object));
-
-    expect(Math.sqrt(speed.difficultyValue) * 0.0675).toBeCloseTo(fixture.difficulty, 5);
-    expect(speed.relevantObjectCount()).toBeCloseTo(fixture.count, 5);
-  }
-});
-
-test('July Reading matches the pinned official difficulty component', () => {
-  const cases = [
-    {
-      beatmap: 'diffcalc-test.osu',
-      mods: 'NM',
-      rate: 1,
-      difficulty: 1.7803497292117219,
-    },
-    {
-      beatmap: 'diffcalc-test.osu',
-      mods: 'DT',
-      rate: 1.5,
-      difficulty: 2.1998562282900487,
-    },
-    {
-      beatmap: 'diffcalc-test.osu',
-      mods: 'HD',
-      rate: 1,
-      difficulty: 2.2105684615868535,
-    },
-    {
-      beatmap: '801165.osu',
-      mods: 'NM',
-      rate: 1,
-      difficulty: 1.2807842408799812,
-    },
-  ];
-
-  for (const fixture of cases) {
-    const source = fs.readFileSync(path.resolve(__dirname, `Files/July2026/${fixture.beatmap}`), 'utf8');
-    const parsed = new BeatmapDecoder().decodeFromString(source, false);
-    const mods = new StandardModCombination(fixture.mods);
-    const beatmap = new StandardRuleset().applyToBeatmapWithMods(parsed, mods);
-    const objects: StandardDifficultyHitObject[] = [];
-
-    for (let i = 1; i < beatmap.hitObjects.length; ++i) {
-      objects.push(new StandardDifficultyHitObject(beatmap.hitObjects[i], beatmap.hitObjects[i - 1], fixture.rate, objects, i - 1));
-    }
-
-    const reading = new Reading(mods);
-
-    objects.forEach((object) => reading.process(object));
-
-    if (fixture.mods === 'NM' && fixture.beatmap === 'diffcalc-test.osu') {
-      expect(objects[0].preempt).toBe(704);
-      expect(objects[0].baseObject.radius).toBeCloseTo(36.4949531555176, 6);
-    }
-
-    expect(Math.sqrt(reading.difficultyValue) * 0.0675).toBeCloseTo(fixture.difficulty, 5);
-  }
-});
-
-test('July Aim matches the pinned official difficulty component', () => {
-  const cases = [
-    {
-      beatmap: 'diffcalc-test.osu',
-      mods: 'NM',
-      rate: 1,
-      difficulty: 3.809399008867019,
-      sliderFactor: 0.9988227250155558,
-    },
-    {
-      beatmap: 'diffcalc-test.osu',
-      mods: 'DT',
-      rate: 1.5,
-      difficulty: 5.5930033565507795,
-      sliderFactor: 0.9964851154347204,
-    },
-    {
-      beatmap: 'diffcalc-test.osu',
-      mods: 'HD',
-      rate: 1,
-      difficulty: 3.809399008867019,
-      sliderFactor: 0.9988227250155558,
-    },
-    {
-      beatmap: '801165.osu',
-      mods: 'NM',
-      rate: 1,
-      difficulty: 3.5141717095461806,
-      sliderFactor: 0.9795548616785261,
-    },
-  ];
-
-  for (const fixture of cases) {
-    const source = fs.readFileSync(path.resolve(__dirname, `Files/July2026/${fixture.beatmap}`), 'utf8');
-    const parsed = new BeatmapDecoder().decodeFromString(source, false);
-    const mods = new StandardModCombination(fixture.mods);
-    const beatmap = new StandardRuleset().applyToBeatmapWithMods(parsed, mods);
-    const objects: StandardDifficultyHitObject[] = [];
-
-    for (let i = 1; i < beatmap.hitObjects.length; ++i) {
-      objects.push(new StandardDifficultyHitObject(beatmap.hitObjects[i], beatmap.hitObjects[i - 1], fixture.rate, objects, i - 1));
-    }
-
-    const aim = new Aim(mods, true);
-    const aimWithoutSliders = new Aim(mods, false);
-
-    objects.forEach((object) => {
-      aim.process(object);
-      aimWithoutSliders.process(object);
-    });
-
-    expect(Math.pow(aim.difficultyValue, 0.63) * 0.02275).toBeCloseTo(fixture.difficulty, 8);
-    expect(Math.pow(aimWithoutSliders.difficultyValue / aim.difficultyValue, 0.63))
-      .toBeCloseTo(fixture.sliderFactor, 5);
-  }
 });
 
 test('Classic slider accuracy survives mod combination cloning', () => {

@@ -16,7 +16,6 @@ import {
   StandardPerformanceCalculator,
 } from './Difficulty';
 
-import { StandardReplayConverter } from './Replays';
 import { StandardModCombination } from './Mods/StandardModCombination';
 
 /**
@@ -81,11 +80,8 @@ export class StandardRuleset extends Ruleset {
     return new StandardBeatmapConverter();
   }
 
-  /**
-   * @returns A new osu!std replay converter.
-   */
-  protected _createReplayConverter(): StandardReplayConverter {
-    return new StandardReplayConverter();
+  protected _createReplayConverter(): never {
+    throw new Error('Replay conversion is outside the scope of this PP calculator.');
   }
 
   /**

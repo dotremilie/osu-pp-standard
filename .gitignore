@@ -1,14 +1,9 @@
 /**
-!/docs
-!/docs/**
 !/src
 !/src/**
-!/scripts
-!/scripts/**
 !/tests
 !/tests/**
 !.gitignore
-!.npmignore
 !CHANGELOG.md
 !eslint.config.mjs
 !jest.config.ts
@@ -19,4 +14,3 @@
 !README.md
 !rollup.config.mjs
 !tsconfig.json
-!typedoc.json

@@ -2,6 +2,8 @@
 
 TypeScript fork of [kionell/osu-standard-stable](https://github.com/kionell/osu-standard-stable) for osu!standard difficulty and PP calculation. It targets osu!standard difficulty version `20260706` from [ppy/osu `2026.711.0-lazer`](https://github.com/ppy/osu/tree/2026.711.0-lazer).
 
+Package versions use `YYYY.MDD.REVISION`: difficulty version `20260706` corresponds to npm version `2026.706.0`. Fork fixes for the same calculator version increment `REVISION`.
+
 Install the package and its beatmap dependencies:
 
 ```bash
